@@ -3,8 +3,7 @@ var contexto = canvas.getContext('2d');
 var dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse=false;
 // coordenadas del mouse
 var startX, startY, endX, endY;
-//ALMACENAR LAS FIGURAS PARA GUARDARLAS
-let figuras = [];
+
 //console.log(figuras)
 //listener para el boton de circulo
 document.getElementById('dibujarCirculoBtn').addEventListener('click', function() {
@@ -64,15 +63,15 @@ canvas.addEventListener('mouseup', function(event) {
         lado=Math.sqrt(((endX-startX)**2)+((endY-startY)**2))
         dibujarCuadrado(startX,startY, lado);
     }else if (dibujandoElipse) {
-        // Calcular el centro de la elipse
+        //centro
         let centerX = (startX + endX) / 2;
         let centerY = (startY + endY) / 2;
         
-        // Calcular los radios horizontal y vertical
+        //radios
         let radiusX = Math.abs((endX - startX) / 2);
         let radiusY = Math.abs((endY - startY) / 2);
         
-        // Dibujar la elipse
+     
         dibujarElipse(centerX, centerY, radiusX, radiusY);
     }
 
