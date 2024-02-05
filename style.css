@@ -1,8 +1,43 @@
 #canvas{
-    margin-left: 30%;
-    margin-top: 10%;
-    background-color: rgb(196, 238, 238);
+    margin-left: 20%;
+    margin-top: 15%;
+    background-color: rgb(255, 255, 255);
 }
 body{
-    background-color: black;
+    background-color: rgb(196, 238, 238);
+}
+#dibujarCirculoBtn{
+    
+  margin-right: 1%;
+    width: 10%;
+    height: 8%;
+    border-style: solid;
+}
+#dibujarLineaBtn{
+    margin-right: 1%;
+    width: 10%;
+    height: 8%;
+    border-style: solid;
+}
+#dibujarCuadradoBtn{
+    margin-right: 1%;
+    width: 10%;
+    height: 8%;
+    border-style: solid;
+}
+#dibujarElipseBtn{
+    margin-right: 1%;
+    width: 10%;
+    height: 8%;
+    border-style: solid;
+}
+.figuras{
+    display: flex;
+    flex-direction: row;
+
+
+}
+.todo{
+    display: flex;
+    flex-direction:row ;
 }

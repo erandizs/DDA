@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
     <head>
         <title></title>
@@ -7,64 +7,22 @@
         <link href="style.css" rel="stylesheet">
     </head>
     <body>
-        <canvas id="canvas" width="700" height="500"></canvas>
-        <script>
-            var canvas = document.getElementById('canvas');
-            var contexto = canvas.getContext('2d');
+        <div class="todo">
+          
+            <div class="figuras">
 
-            canvas.addEventListener('mouseup', function(event) {
-            endX = event.clientX - canvas.getBoundingClientRect().left; // x
-            endY = event.clientY - canvas.getBoundingClientRect().top;   // y
-            dibujarLineaDDA(startX,startY,endX,endY);
-            
-        });
-        canvas.addEventListener('mousedown', function(event) {
-       
-            startX = event.clientX - canvas.getBoundingClientRect().left; // x
-            startY = event.clientY - canvas.getBoundingClientRect().top;  // y
-        
-    
-        });
-
-
-                function dibujarLineaDDA(x0, y0, x1, y1) {
-                // diferencias en x y y
-                let dx = x1 - x0;
-                let dy = y1 - y0;
-
-                // longitud de la línea
-                let steps = Math.max(Math.abs(dx), Math.abs(dy));
-
-                // incrementos para cada paso
-                let xIncrement = dx / steps;
-                let yIncrement = dy / steps;
-
-                //valores iniciales
-                let x = x0;
-                let y = y0;
-
-                // dibujar cada punto de la línea
-                for (let i = 0; i <= steps; i++) {
-                    drawPixel(Math.round(x), Math.round(y), [0, 0, 0]); // dibujar el píxel más cercano
-                    x += xIncrement;
-                    y += yIncrement;
-                }
-            }
-
-            function drawPixel(x, y, color) {
-       //  datos de píxeles del canvas
-                var imageData = contexto.createImageData(1, 1);
-                var data = imageData.data;
-
-                //color del píxel
-                data[0] = color[0];   // rojo
-                data[1] = color[1];   // verde
-                data[2] = color[2];   // azul
-                data[3] = 255;        // opacidad
-
-                // dibuja pixel
-                contexto.putImageData(imageData, x, y);
-             }
+                <img id="dibujarCirculoBtn" src="circulo.jpg"></img>
+                <img id="dibujarLineaBtn" src="linea.jpg"></img>
+                <img id="dibujarCuadradoBtn" src="cuadrado.jpg"></img>
+                <img id="dibujarElipseBtn" src="elipse.jpg"></img>
+            </div>
+           
+            <div class="canvas">
+                <canvas id="canvas" width="600" height="400"></canvas>
+            </div>
+           </div>
+         
+        <script src="codigo.js">
         </script>
     </body>
 </html>
