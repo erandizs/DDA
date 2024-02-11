@@ -1,5 +1,5 @@
 #canvas{
-    margin-left: 20%;
+   
     margin-top: 15%;
     background-color: rgb(255, 255, 255);
 }
@@ -26,6 +26,12 @@ body{
     border-style: solid;
 }
 #dibujarElipseBtn{
+    margin-right: 1%;
+    width: 10%;
+    height: 8%;
+    border-style: solid;
+}
+#dibujarPoligonoBtn{
     margin-right: 1%;
     width: 10%;
     height: 8%;

@@ -1,6 +1,6 @@
 var canvas = document.getElementById('canvas');
 var contexto = canvas.getContext('2d');
-var dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse=false;
+var dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono=false;
 // coordenadas del mouse
 var startX, startY, endX, endY;
 
@@ -11,6 +11,7 @@ document.getElementById('dibujarCirculoBtn').addEventListener('click', function(
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
     dibujandoElipse=false;
+    dibujandoPoligono=false;
 });
 //listener boton linea
 document.getElementById('dibujarLineaBtn').addEventListener('click', function() {
@@ -18,6 +19,7 @@ document.getElementById('dibujarLineaBtn').addEventListener('click', function() 
     dibujandoCirculo = false; //  no se dibuje un círculo
     dibujandoCuadrado=false;
     dibujandoElipse=false;
+    dibujandoPoligono=false;
 });
 //listener boton cuadrado
 document.getElementById('dibujarCuadradoBtn').addEventListener('click', function() {
@@ -25,6 +27,7 @@ document.getElementById('dibujarCuadradoBtn').addEventListener('click', function
     dibujandoCirculo = false; //  no se dibuje un círculo
     dibujandoCuadrado=true;
     dibujandoElipse=false;
+    dibujandoPoligono=false;
 });
 //listener boton elipse
 document.getElementById('dibujarElipseBtn').addEventListener('click', function() {
@@ -32,14 +35,22 @@ document.getElementById('dibujarElipseBtn').addEventListener('click', function()
     dibujandoCirculo = false; //  no se dibuje un círculo
     dibujandoCuadrado=false;
     dibujandoElipse=true;
+    dibujandoPoligono=false;
+});
+document.getElementById('dibujarPoligonoBtn').addEventListener('click', function() {
+    dibujandoCirculo = false;
+    dibujandoLinea = false; // no se dibuje una línea
+    dibujandoCuadrado=false;
+    dibujandoElipse=false;
+    dibujandoPoligono=true;
+
 });
 // agarrar las coordenadas del mouse cuqando hace clic
 canvas.addEventListener('mousedown', function(event) {
-    if(dibujandoCirculo || dibujandoLinea || dibujandoCuadrado || dibujandoElipse){
+    if(dibujandoCirculo || dibujandoLinea || dibujandoCuadrado || dibujandoElipse||dibujandoPoligono){
         startX = event.clientX - canvas.getBoundingClientRect().left; // x
         startY = event.clientY - canvas.getBoundingClientRect().top;  // y
     }
-   
 });
 
 // cordenadas al soltar el mouse
@@ -73,6 +84,9 @@ canvas.addEventListener('mouseup', function(event) {
         
      
         dibujarElipse(centerX, centerY, radiusX, radiusY);
+    }else if(dibujandoPoligono){
+   
+        dibujarPoligono();
     }
 
     
@@ -159,6 +173,10 @@ function dibujarCuadrado(x, y, lado) {
       }
   }
 
+
+    function dibujarPoligono(event) {
+      
+    }
   function drawPixel(x, y, color) {
        //  datos de píxeles del canvas
       var imageData = contexto.createImageData(1, 1);
