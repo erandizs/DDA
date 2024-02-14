@@ -1,6 +1,6 @@
 #canvas{
-   
-    margin-top: 15%;
+    margin-left:-25%;
+    margin-top: 10%;
     background-color: rgb(255, 255, 255);
 }
 body{
@@ -20,6 +20,12 @@ body{
     border-style: solid;
 }
 #dibujarCuadradoBtn{
+    margin-right: 1%;
+    width: 10%;
+    height: 8%;
+    border-style: solid;
+}
+#dibujarRectanguloBtn{
     margin-right: 1%;
     width: 10%;
     height: 8%;

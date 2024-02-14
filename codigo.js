@@ -1,9 +1,13 @@
 var canvas = document.getElementById('canvas');
 var contexto = canvas.getContext('2d');
-var dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono=false;
+var dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo=false;
 // coordenadas del mouse
 var startX, startY, endX, endY;
-
+let point=[];
+var rectangles = [];
+let ladosPoligono=0;
+let flag=0;
+var isDrawing=false;
 //console.log(figuras)
 //listener para el boton de circulo
 document.getElementById('dibujarCirculoBtn').addEventListener('click', function() {
@@ -12,6 +16,8 @@ document.getElementById('dibujarCirculoBtn').addEventListener('click', function(
     dibujandoCuadrado=false;
     dibujandoElipse=false;
     dibujandoPoligono=false;
+    dibujandoRectangulo=false;
+    flag=0;
 });
 //listener boton linea
 document.getElementById('dibujarLineaBtn').addEventListener('click', function() {
@@ -20,6 +26,8 @@ document.getElementById('dibujarLineaBtn').addEventListener('click', function() 
     dibujandoCuadrado=false;
     dibujandoElipse=false;
     dibujandoPoligono=false;
+    dibujandoRectangulo=false;
+    flag=0;
 });
 //listener boton cuadrado
 document.getElementById('dibujarCuadradoBtn').addEventListener('click', function() {
@@ -28,6 +36,8 @@ document.getElementById('dibujarCuadradoBtn').addEventListener('click', function
     dibujandoCuadrado=true;
     dibujandoElipse=false;
     dibujandoPoligono=false;
+    dibujandoRectangulo=false;
+    flag=0;
 });
 //listener boton elipse
 document.getElementById('dibujarElipseBtn').addEventListener('click', function() {
@@ -36,25 +46,70 @@ document.getElementById('dibujarElipseBtn').addEventListener('click', function()
     dibujandoCuadrado=false;
     dibujandoElipse=true;
     dibujandoPoligono=false;
+    dibujandoRectangulo=false;
+    flag=0;
 });
 document.getElementById('dibujarPoligonoBtn').addEventListener('click', function() {
     dibujandoCirculo = false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
     dibujandoElipse=false;
-    dibujandoPoligono=true;
+    dibujandoRectangulo=false;
+    flag=1;
+ //   dibujandoPoligono=true;
+
+});
+document.getElementById('dibujarRectanguloBtn').addEventListener('click', function() {
+    dibujandoCirculo = false;
+    dibujandoLinea = false; // no se dibuje una línea
+    dibujandoCuadrado=false;
+    dibujandoElipse=false;
+    dibujandoRectangulo=true;
+    dibujandoPoligono=false;
+    flag=1;
+ //   dibujandoPoligono=true;
 
 });
 // agarrar las coordenadas del mouse cuqando hace clic
 canvas.addEventListener('mousedown', function(event) {
-    if(dibujandoCirculo || dibujandoLinea || dibujandoCuadrado || dibujandoElipse||dibujandoPoligono){
+    isDrawing = true;
+    if(dibujandoCirculo || dibujandoLinea || dibujandoCuadrado || dibujandoElipse||dibujandoRectangulo){
         startX = event.clientX - canvas.getBoundingClientRect().left; // x
         startY = event.clientY - canvas.getBoundingClientRect().top;  // y
     }
+    if(dibujandoPoligono){
+        startX = event.clientX - canvas.getBoundingClientRect().left; // x
+        startY = event.clientY - canvas.getBoundingClientRect().top;  // y
+        point.push({ x: startX, y: startY }); // Guardar el vértice inicial
+        console.log(point)
+       // ladosPoligono++;
+    }
+});
+
+canvas.addEventListener("mousemove", function(event) {
+    if (!isDrawing) return; // Salir si no estamos dibujando
+    
+    var rect = canvas.getBoundingClientRect();
+    var x = Math.round(event.clientX - rect.left);
+    var y = Math.round(event.clientY - rect.top);
+
+   if(dibujandoRectangulo){
+    // Limpiar el lienzo
+    contexto.clearRect(0, 0, canvas.width, canvas.height);
+        // Dibujar todos los rectángulos almacenados
+        rectangles.forEach(function(rectangle) {
+            dibujarRectangulo(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        });
+
+        // Dibujar el rectángulo actual mientras se arrastra el mouse
+        dibujarRectangulo(startX, startY, x - startX, y - startY);
+   }
+
 });
 
 // cordenadas al soltar el mouse
 canvas.addEventListener('mouseup', function(event) {
+    if (!isDrawing) return;
     endX = event.clientX - canvas.getBoundingClientRect().left; // x
     endY = event.clientY - canvas.getBoundingClientRect().top;   // y
   
@@ -85,16 +140,60 @@ canvas.addEventListener('mouseup', function(event) {
      
         dibujarElipse(centerX, centerY, radiusX, radiusY);
     }else if(dibujandoPoligono){
-   
-        dibujarPoligono();
+        let angulo = Math.atan2(endX-startX,endY-startY);
+        let radio = Math.sqrt(Math.pow(endX-startX,2)+Math.pow(endY-startY,2));
+        console.log(ladosPoligono);
+        dibujarPoligono2(radio,startX,startY,lado_d,angulo);
+    }else if(dibujandoRectangulo){
+         // Calcular el ancho y alto del rectángulo
+        var width = x - startX;
+        var height = y - startY;
+
+        // Almacenar el rectángulo dibujado actualmente
+        rectangles.push({ x: startX, y: startY, width: width, height: height });
+       
     }
 
-    
+     // Restablecer la bandera de dibujo
+     isDrawing = false;
 });
-  
+let lado_d=0;
+function pedirLadosPoligono() {
+   
+ 
+        let ladosPoligono = prompt("Ingrese la cantidad de lados del polígono:");
+        ladosPoligono = parseInt(ladosPoligono);
+        if (ladosPoligono && ladosPoligono >= 3) {
+            dibujandoPoligono = true;
+            lado_d = ladosPoligono;
+        } else {
+            alert("Ingrese un valor válido para la cantidad de lados (mínimo 3).");
+        }
+ 
+}
+
+function dibujarPoligono2(radio,centerX,centerY,ladosPoligono,angulo) {
+        console.log(ladosPoligono);
+        var angulo_inicial=(2*Math.PI)/ladosPoligono,lastX=0,lastY=0;
+        for(let i=0;i<ladosPoligono;i++){
+            let step=i*angulo_inicial+angulo;
+            let point=grados(centerX,centerY,radio,step);
+            if(i>0){
+                dibujarLineaDDA(point.x,point.y,lastX,lastY);
+            }
+            lastX=point.x;
+            lastY=point.y;
+        }
+        dibujarLineaDDA(lastX,lastY,Math.round(centerX+radio*Math.cos(angulo)),Math.round(centerY+radio*Math.sin(angulo)))
+}
+function grados(centerX,centerY,radio,step){
+    let pointX=Math.round(centerX+radio*Math.cos(step));
+    let pointY=Math.round(centerY+radio*Math.sin(step));
+    return{x:pointX,y:pointY}
+}
+
 function dibujarElipse(centerX, centerY, radiusX, radiusY) {
    
-  
     for (let angle = 0; angle < Math.PI * 2; angle += 0.01) {
         const x = Math.round(centerX + Math.cos(angle) * radiusX);
         const y = Math.round(centerY + Math.sin(angle) * radiusY);
@@ -173,10 +272,15 @@ function dibujarCuadrado(x, y, lado) {
       }
   }
 
+  function dibujarRectangulo(x, y, width, height) {
 
-    function dibujarPoligono(event) {
-      
-    }
+    dibujarLineaDDA(x, y, x + width, y);
+    dibujarLineaDDA(x + width, y, x + width, y + height);
+    dibujarLineaDDA(x + width, y + height, x, y + height);
+    dibujarLineaDDA(x, y + height, x, y);
+}
+
+
   function drawPixel(x, y, color) {
        //  datos de píxeles del canvas
       var imageData = contexto.createImageData(1, 1);
