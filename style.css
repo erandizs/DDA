@@ -10,7 +10,8 @@ body{
    height: 8%;
    width: 15%;
    border-style: solid;
-
+   margin-right: 1%;
+   margin-left: 1%;
 }
 
 #dibujarCirculoBtn{
@@ -67,7 +68,7 @@ body{
     background-color: #007bff;
     color: #fff;
     border-radius: 5px;
-    border: 2px solid #007bff;
+    border-style: solid;
     transition: background-color 0.3s ease;
 }
 
@@ -88,20 +89,23 @@ body{
   
   /* Estilos para el botón que activa el menú desplegable */
   .dropbtn {
-    background-color: #007bff;
-    color: white;
+    background-color: rgb(196, 238, 238);
     padding: 10px;
     font-size: 16px;
-    border: none;
+    border-style: solid;
     cursor: pointer;
     height: 9%;
+    border-width: 4.5px; 
+   
+   
   }
   
   /* Estilos para el contenido del menú desplegable */
   .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #f9f9f9;
+    background-color: rgb(196, 238, 238);
+    
     min-width: 160px;
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
     z-index: 1;
@@ -115,7 +119,7 @@ body{
     text-decoration: none;
     display: block;
     width: 100%;
-    border: none;
+  border-style: solid;
     background: none;
     cursor: pointer;
   }
@@ -123,6 +127,7 @@ body{
   /* Estilos para los elementos dentro del menú desplegable al pasar el cursor */
   .dropdown-content label:hover,
   .dropdown-content button:hover {
+    
     background-color: #007bff;
     color: white;
   }
@@ -135,6 +140,7 @@ body{
   /* Estilos para el botón de guardar */
   .custom-save-button {
     background-color: #007bff;
+    border-style: solid;
     color: white;
     border: none;
     cursor: pointer;
