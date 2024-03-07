@@ -1,153 +1,175 @@
 #canvas{
-    margin-left:-25%;
-    margin-top: 10%;
-    background-color: rgb(255, 255, 255);
+  display: flex;
+  flex-direction: row;
+  margin-left:-10%;
+  margin-top: 10%;
+  background-color: rgb(255, 255, 255);
 }
 body{
-    background-color: rgb(196, 238, 238);
+  background-color: rgb(196, 238, 238);
 }
-.colors{
-   height: 9%;
-   width: 15%;
-   border-style: solid;
-   margin-right: 1%;
-   margin-left: 1%;
+.colors {
+  width: 30%;
+ margin-bottom: 1%;
+ 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+.colores-contenedor {
+  display: flex;
+  flex-direction: row;
+}
+
+.img_colores,
+.colores2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+
+
+
 #dibujarCirculoBtn{
-    
-  margin-right: 1%;
-    width: 10%;
-    height: 8%;
-    border-style: solid;
+  
+margin-right: 1%;
+  width: 10%;
+  height: 8%;
+  border-style: solid;
 }
 #dibujarLineaBtn{
-    margin-right: 1%;
-    width: 10%;
-    height: 8%;
-    border-style: solid;
+  margin-right: 1%;
+  width: 10%;
+  height: 8%;
+  border-style: solid;
+}
+#borraBtn{
+  margin-right: 1%;
+  width: 10%;
+  height: 8%;
+  border-style: solid;
 }
 #dibujarCuadradoBtn{
-    margin-right: 1%;
-    width: 10%;
-    height: 8%;
-    border-style: solid;
+  margin-right: 1%;
+  width: 10%;
+  height: 8%;
+  border-style: solid;
 }
 #dibujarRectanguloBtn{
-    margin-right: 1%;
-    width: 10%;
-    height: 8%;
-    border-style: solid;
+  margin-right: 1%;
+  width: 10%;
+  height: 8%;
+  border-style: solid;
 }
 #dibujarElipseBtn{
-    margin-right: 1%;
-    width: 10%;
-    height: 8%;
-    border-style: solid;
+  margin-right: 1%;
+  width: 10%;
+  height: 8%;
+  border-style: solid;
 }
 #dibujarPoligonoBtn{
-    margin-right: 1%;
-    width: 10%;
-    height: 8%;
-    border-style: solid;
+  margin-right: 1%;
+  width: 10%;
+  height: 8%;
+  border-style: solid;
 }
 .figuras{
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: column;
 
 
 }
 .todo{
-    display: flex;
-    flex-direction:row ;
+  display: flex;
+  flex-direction:row ;
 }
 .custom-file-upload {
-    display: inline-block;
-    padding: 10px 20px;
-    cursor: pointer;
-    background-color: #007bff;
-    color: #fff;
-    border-radius: 5px;
-    border-style: solid;
-    transition: background-color 0.3s ease;
+  display: inline-block;
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 5px;
+  border-style: solid;
+  transition: background-color 0.3s ease;
 }
 
 .custom-file-upload:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
 }
 
 .custom-file-upload i {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 
 /* Estilos para el contenedor del menú desplegable */
 .dropdown {
-    position: relative;
-    display: inline-block;
-  }
-  
-  /* Estilos para el botón que activa el menú desplegable */
-  .dropbtn {
-    background-color: rgb(196, 238, 238);
-    padding: 10px;
-    font-size: 16px;
-    border-style: solid;
-    cursor: pointer;
-    height: 9%;
-    border-width: 4.5px; 
-   
-   
-  }
-  
-  /* Estilos para el contenido del menú desplegable */
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: rgb(196, 238, 238);
-    
-    min-width: 160px;
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-    z-index: 1;
-  }
-  
-  /* Estilos para los elementos dentro del menú desplegable */
-  .dropdown-content label,
-  .dropdown-content button {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    width: 100%;
+  position: relative;
+  display: inline-block;
+}
+
+/* Estilos para el botón que activa el menú desplegable */
+.dropbtn {
+  background-color: rgb(196, 238, 238);
+  padding: 10px;
+  font-size: 14px;
   border-style: solid;
-    background: none;
-    cursor: pointer;
-  }
+  cursor: pointer;
+  height: 9%;
+  border-width: 4.5px; 
   
-  /* Estilos para los elementos dentro del menú desplegable al pasar el cursor */
-  .dropdown-content label:hover,
-  .dropdown-content button:hover {
-    
-    background-color: #007bff;
-    color: white;
-  }
+}
+
+/* Estilos para el contenido del menú desplegable */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: rgb(196, 238, 238);
   
-  /* Mostrar el contenido del menú desplegable cuando se pasa el cursor sobre el contenedor */
-  .dropdown:hover .dropdown-content {
-    display: block;
-  }
+  min-width: 160px;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Estilos para los elementos dentro del menú desplegable */
+.dropdown-content label,
+.dropdown-content button {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+border-style: solid;
+  background: none;
+  cursor: pointer;
+}
+
+/* Estilos para los elementos dentro del menú desplegable al pasar el cursor */
+.dropdown-content label:hover,
+.dropdown-content button:hover {
   
-  /* Estilos para el botón de guardar */
-  .custom-save-button {
-    background-color: #007bff;
-    border-style: solid;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  /* Estilos para el botón de guardar al pasar el cursor */
-  .custom-save-button:hover {
-    background-color: #0056b3;
-  }
-  
+  background-color: #007bff;
+  color: white;
+}
+
+/* Mostrar el contenido del menú desplegable cuando se pasa el cursor sobre el contenedor */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Estilos para el botón de guardar */
+.custom-save-button {
+  background-color: #007bff;
+  border-style: solid;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+/* Estilos para el botón de guardar al pasar el cursor */
+.custom-save-button:hover {
+  background-color: #0056b3;
+}

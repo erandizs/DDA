@@ -50,6 +50,7 @@ document.getElementById('dibujarCuadradoBtn').addEventListener('click', function
     dibujandoElipse=false;
     dibujandoPoligono=false;
     dibujandoRectangulo=false;
+    console.log("cuadrado");
     flag=0;
 });
 //listener boton elipse
@@ -60,6 +61,7 @@ document.getElementById('dibujarElipseBtn').addEventListener('click', function()
     dibujandoElipse=true;
     dibujandoPoligono=false;
     dibujandoRectangulo=false;
+    console.log("elipse");
     flag=0;
 });
 document.getElementById('dibujarPoligonoBtn').addEventListener('click', function() {
@@ -448,3 +450,101 @@ function cargarFigurasDesdeArchivo(event) {
 
 // Asociar la función cargarFigurasDesdeArchivo al cambio del input de tipo file
 document.getElementById('inputArchivo').addEventListener('change', cargarFigurasDesdeArchivo);
+
+
+
+//BORRAR
+
+
+document.getElementById('borraBtn').addEventListener('click', function() {
+    // Establecer la bandera para el modo borrador
+    flag_borrador = true;
+
+    // Desactivar el dibujo de todas las figuras
+    dibujandoCirculo = false;
+    dibujandoLinea = false;
+    dibujandoCuadrado = false;
+    dibujandoElipse = false;
+    dibujandoPoligono = false;
+    dibujandoRectangulo = false;
+    flag = 0;
+   
+    // Agregar un evento de clic al lienzo para eliminar figuras
+        canvas.addEventListener('click', function(event) {
+            if(flag_borrador){
+                // Obtener las coordenadas del clic
+                const x = event.offsetX;
+                const y = event.offsetY;
+
+                // Iterar sobre las figuras dibujadas
+                for (let i = 0; i < figurasDibujadas.length; i++) {
+                    const figura = figurasDibujadas[i];
+
+                    // Verificar si el clic está dentro de la figura
+                    if (
+                        (figura.tipo === 'circulo' && puntoDentroDeCirculo(x, y, figura.centerX, figura.centerY, figura.radius)) ||
+                        (figura.tipo === 'linea' && puntoEnLinea(x, y, figura.startX, figura.startY, figura.endX, figura.endY)) ||
+                        (figura.tipo === 'cuadrado' && puntoDentroDeCuadrado(x, y, figura.startX, figura.startY, figura.lado)) ||
+                        (figura.tipo === 'elipse' && puntoDentroDeElipse(x, y, figura.centerX, figura.centerY, figura.radiusX, figura.radiusY)) ||
+                        (figura.tipo === 'poligono' && puntoDentroDePoligono(x, y, figura.radio, figura.startX, figura.startY, figura.lado_d, figura.angulo)) ||
+                        (figura.tipo === 'rectangulo' && puntoDentroDeRectangulo(x, y, figura.startX, figura.startY, figura.width, figura.height))
+                    ) {
+                        // Eliminar la figura del arreglo de figuras dibujadas
+                        figurasDibujadas.splice(i, 1);
+
+                        // Volver a dibujar el canvas sin la figura eliminada
+                        contexto.clearRect(0, 0, canvas.width, canvas.height);
+                        dibujarFiguras(figurasDibujadas);
+
+                        // Salir del bucle después de eliminar la primera figura encontrada
+                        break;
+                    }
+                    }
+            }
+        });
+    
+    
+});
+
+// Función para verificar si un punto está dentro de un círculo
+function puntoDentroDeCirculo(x, y, centerX, centerY, radius) {
+    return Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2) <= radius;
+}
+
+// Función para verificar si un punto está en una línea (con un pequeño margen de error)
+function puntoEnLinea(x, y, startX, startY, endX, endY) {
+    const distancia = Math.abs((endX - startX) * (startY - y) - (startX - x) * (endY - startY)) /
+                      Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
+    return distancia <= 3; // Margen de error de 3 píxeles
+}
+
+// Función para verificar si un punto está dentro de un cuadrado
+function puntoDentroDeCuadrado(x, y, startX, startY, lado) {
+    return x >= startX && x <= startX + lado && y >= startY && y <= startY + lado;
+}
+
+// Función para verificar si un punto está dentro de una elipse
+function puntoDentroDeElipse(x, y, centerX, centerY, radiusX, radiusY) {
+    const distancia = ((x - centerX) ** 2) / (radiusX ** 2) + ((y - centerY) ** 2) / (radiusY ** 2);
+    return distancia <= 1;
+}
+
+// Función para verificar si un punto está dentro de un polígono
+function puntoDentroDePoligono(x, y, radio, centerX, centerY, ladosPoligono, angulo) {
+    const puntoTransformadoX = (x - centerX) * Math.cos(-angulo) - (y - centerY) * Math.sin(-angulo);
+    const puntoTransformadoY = (x - centerX) * Math.sin(-angulo) + (y - centerY) * Math.cos(-angulo);
+
+    const distanciaAlCentro = Math.sqrt(puntoTransformadoX ** 2 + puntoTransformadoY ** 2);
+
+    return distanciaAlCentro <= radio;
+}
+
+// Función para verificar si un punto está dentro de un rectángulo
+function puntoDentroDeRectangulo(x, y, startX, startY, width, height) {
+    return x >= startX && x <= startX + width && y >= startY && y <= startY + height;
+}
+
+
+
+
+
