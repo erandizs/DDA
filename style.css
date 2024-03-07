@@ -20,6 +20,12 @@ body{
 .colores-contenedor {
   display: flex;
   flex-direction: row;
+.colors{
+   height: 9%;
+   width: 16%;
+   border-style: solid;
+   margin-right: 1%;
+   margin-left: 1%;
 }
 
 .img_colores,
