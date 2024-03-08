@@ -1,6 +1,6 @@
 var canvas = document.getElementById('canvas');
 var contexto = canvas.getContext('2d');
-var dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo=false;
+var dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo,dibujando=false;
 // coordenadas del mouse
 
 var startX, startY, endX, endY;
@@ -22,6 +22,16 @@ document.getElementById('rojoBtn').addEventListener('click', function() {
  document.getElementById('negroBtn').addEventListener('click', function() {
     color=[0, 0, 0];
  });
+ document.getElementById('dibujarBtn').addEventListener('click', function() {
+    dibujando=true;
+   
+    dibujandoCirculo = false;
+    dibujandoLinea = false; // no se dibuje una línea
+    dibujandoCuadrado=false;
+    dibujandoElipse=false;
+    dibujandoPoligono=false;
+    dibujandoRectangulo=false;
+ });
 //listener para el boton de circulo
 document.getElementById('dibujarCirculoBtn').addEventListener('click', function() {
     dibujandoCirculo = true;
@@ -30,6 +40,7 @@ document.getElementById('dibujarCirculoBtn').addEventListener('click', function(
     dibujandoElipse=false;
     dibujandoPoligono=false;
     dibujandoRectangulo=false;
+    dibujando=false;
     flag=0;
 });
 //listener boton linea
@@ -40,6 +51,7 @@ document.getElementById('dibujarLineaBtn').addEventListener('click', function() 
     dibujandoElipse=false;
     dibujandoPoligono=false;
     dibujandoRectangulo=false;
+    dibujando=false;
     flag=0;
 });
 //listener boton cuadrado
@@ -50,7 +62,7 @@ document.getElementById('dibujarCuadradoBtn').addEventListener('click', function
     dibujandoElipse=false;
     dibujandoPoligono=false;
     dibujandoRectangulo=false;
-    console.log("cuadrado");
+    dibujando=false;
     flag=0;
 });
 //listener boton elipse
@@ -61,7 +73,7 @@ document.getElementById('dibujarElipseBtn').addEventListener('click', function()
     dibujandoElipse=true;
     dibujandoPoligono=false;
     dibujandoRectangulo=false;
-    console.log("elipse");
+    dibujando=false;
     flag=0;
 });
 document.getElementById('dibujarPoligonoBtn').addEventListener('click', function() {
@@ -70,6 +82,7 @@ document.getElementById('dibujarPoligonoBtn').addEventListener('click', function
     dibujandoCuadrado=false;
     dibujandoElipse=false;
     dibujandoRectangulo=false;
+    dibujando=false;
     flag=1;
  //   dibujandoPoligono=true;
 
@@ -81,6 +94,7 @@ document.getElementById('dibujarRectanguloBtn').addEventListener('click', functi
     dibujandoElipse=false;
     dibujandoRectangulo=true;
     dibujandoPoligono=false;
+    dibujando=false;
     flag=1;
  //   dibujandoPoligono=true;
 
@@ -543,8 +557,3 @@ function puntoDentroDePoligono(x, y, radio, centerX, centerY, ladosPoligono, ang
 function puntoDentroDeRectangulo(x, y, startX, startY, width, height) {
     return x >= startX && x <= startX + width && y >= startY && y <= startY + height;
 }
-
-
-
-
-
