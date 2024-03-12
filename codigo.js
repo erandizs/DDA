@@ -1,15 +1,23 @@
 var canvas = document.getElementById('canvas');
 var contexto = canvas.getContext('2d');
-var dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo,dibujando=false;
+contexto.canvas.willReadFrequently = true;
+var dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo,dibujarBtn,dibujandoTrapecio=false;
 // coordenadas del mouse
 
 var startX, startY, endX, endY;
+
+// Coordenadas de los cuatro puntos del trapecio
+var punto1X, punto1Y, punto2X, punto2Y, punto3X, punto3Y, punto4X, punto4Y;
+
+var indiceActual = 0;
+var cantidadFiguras = 0;
 
 var figurasDibujadas= [];
 let ladosPoligono=0;
 let flag=0;
 var isDrawing=false;
 //console.log(figuras)
+
 document.getElementById('verdeBtn').addEventListener('click', function() {
    color=[0, 255, 0];
 });
@@ -22,9 +30,10 @@ document.getElementById('rojoBtn').addEventListener('click', function() {
  document.getElementById('negroBtn').addEventListener('click', function() {
     color=[0, 0, 0];
  });
+
  document.getElementById('dibujarBtn').addEventListener('click', function() {
-    dibujando=true;
-   
+    dibujarBtn=true;
+   flag_borrador=false;
     dibujandoCirculo = false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
@@ -41,6 +50,7 @@ document.getElementById('dibujarCirculoBtn').addEventListener('click', function(
     dibujandoPoligono=false;
     dibujandoRectangulo=false;
     dibujando=false;
+    flag_borrador=false;
     flag=0;
 });
 //listener boton linea
@@ -50,6 +60,7 @@ document.getElementById('dibujarLineaBtn').addEventListener('click', function() 
     dibujandoCuadrado=false;
     dibujandoElipse=false;
     dibujandoPoligono=false;
+    flag_borrador=false;
     dibujandoRectangulo=false;
     dibujando=false;
     flag=0;
@@ -61,6 +72,7 @@ document.getElementById('dibujarCuadradoBtn').addEventListener('click', function
     dibujandoCuadrado=true;
     dibujandoElipse=false;
     dibujandoPoligono=false;
+    flag_borrador=false;
     dibujandoRectangulo=false;
     dibujando=false;
     flag=0;
@@ -72,6 +84,7 @@ document.getElementById('dibujarElipseBtn').addEventListener('click', function()
     dibujandoCuadrado=false;
     dibujandoElipse=true;
     dibujandoPoligono=false;
+    flag_borrador=false;
     dibujandoRectangulo=false;
     dibujando=false;
     flag=0;
@@ -81,6 +94,7 @@ document.getElementById('dibujarPoligonoBtn').addEventListener('click', function
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
     dibujandoElipse=false;
+    flag_borrador=false;
     dibujandoRectangulo=false;
     dibujando=false;
     flag=1;
@@ -92,6 +106,7 @@ document.getElementById('dibujarRectanguloBtn').addEventListener('click', functi
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
     dibujandoElipse=false;
+    flag_borrador=false;
     dibujandoRectangulo=true;
     dibujandoPoligono=false;
     dibujando=false;
@@ -118,9 +133,9 @@ canvas.addEventListener("mousemove", function(event) {
     if (!isDrawing) return;
     endX = event.offsetX; // x relativo al canvas
     endY = event.offsetY; // y relativo al canvas
-
-  
-
+    if(dibujarBtn){
+        drawPixel(endX,endY, color); 
+    }
 });
 
 // cordenadas al soltar el mouse
@@ -350,6 +365,7 @@ function dibujarCuadrado(x, y, lado,color) {
   }
 
   function dibujarFiguras(figurasDibujadas) {
+    cantidadFiguras = figurasDibujadas.length;
     // Iterar sobre las figuras dibujadas y dibujarlas en el canvas
     for (let i = 0; i < figurasDibujadas.length; i++) {
         const figura = figurasDibujadas[i];
@@ -414,32 +430,56 @@ function drawPixel(x, y, color) {
     // Dibujar el píxel
     contexto.putImageData(imageData, x, y);
 }
-
-
+// Función para exportar la imagen del canvas en el formato especificado
+function exportarImagenCanvas(formato) {
+    const imagenData = canvas.toDataURL('image/' + formato);
+    const enlaceImagen = document.createElement('a');
+    enlaceImagen.href = imagenData;
+    enlaceImagen.download = 'canvas_image.' + formato.toLowerCase();
+    enlaceImagen.click();
+}
+function obtenerColorFondo() {
+    const estilo = getComputedStyle(canvas);
+    return estilo.backgroundColor;
+}
   document.getElementById('guardarComoBtn').addEventListener('click', function() {
-    const data = JSON.stringify(figurasDibujadas); // Convertir las figuras a formato JSON
+    const opciones = ['PNG', 'PDF', 'JPG'];
+    const eleccion = prompt('Seleccione el formato para exportar (PNG, PDF, JPG):', 'PNG');
 
-    // Solicitar al usuario que ingrese un nombre para el archivo
-    const fileName = prompt('Ingrese un nombre para el archivo:', 'figuras.json');
-    if (!fileName) return; // Si el usuario cancela, salir
-    
-    // Crear un objeto Blob para guardar los datos
-    const blob = new Blob([data], { type: 'application/json' });
+    if (eleccion && opciones.includes(eleccion.toUpperCase())) {
+        const formato = eleccion.toUpperCase();
 
-    // Crear un enlace <a> para descargar el archivo
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    
-    // Establecer el nombre del archivo
-    a.download = fileName;
+        // Obtener el color de fondo del canvas
+        const colorFondo = obtenerColorFondo();
 
-    // Simular un clic en el enlace para iniciar la descarga
-    document.body.appendChild(a);
-    a.click();
+        // Crear un objeto que contenga la información del fondo, color de cada figura y la imagen del canvas
+        const dataExportacion = {
+            fondo: colorFondo,
+            figuras: figurasDibujadas
+        };
 
-    // Limpiar el enlace y liberar recursos
-    document.body.removeChild(a);
-    URL.revokeObjectURL(a.href);
+        // Convertir el objeto en formato JSON
+        const jsonData = JSON.stringify(dataExportacion);
+
+        // Crear un enlace <a> para descargar el archivo JSON
+        const enlaceDescarga = document.createElement('a');
+        enlaceDescarga.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
+
+        // Establecer el nombre del archivo
+        enlaceDescarga.download = 'canvas_data.json';
+
+        // Simular un clic en el enlace para iniciar la descarga
+        document.body.appendChild(enlaceDescarga);
+        enlaceDescarga.click();
+
+        // Limpiar el enlace y liberar recursos
+        document.body.removeChild(enlaceDescarga);
+
+        // Exportar la imagen del canvas en el formato especificado
+        exportarImagenCanvas(formato);
+    } else {
+        alert('Formato no válido. Por favor, seleccione entre PNG, PDF o JPG.');
+    }
 });
 
 
@@ -473,7 +513,7 @@ document.getElementById('inputArchivo').addEventListener('change', cargarFiguras
 document.getElementById('borraBtn').addEventListener('click', function() {
     // Establecer la bandera para el modo borrador
     flag_borrador = true;
-
+    dibujarBtn=false;
     // Desactivar el dibujo de todas las figuras
     dibujandoCirculo = false;
     dibujandoLinea = false;
@@ -515,11 +555,21 @@ document.getElementById('borraBtn').addEventListener('click', function() {
                     }
                     }
             }
+            if(dibujandoTrapecio){
+             
+                
+            }
         });
     
     
 });
-
+function dibujarTrapecio(x1, y1, x2, y2, x3, y3, x4, y4, color) {
+    // Dibujar las cuatro líneas que forman el trapecio
+    dibujarLineaDDA(x1, y1, x2, y2, color);
+    dibujarLineaDDA(x2, y2, x3, y3, color);
+    dibujarLineaDDA(x3, y3, x4, y4, color);
+    dibujarLineaDDA(x4, y4, x1, y1, color);
+}
 // Función para verificar si un punto está dentro de un círculo
 function puntoDentroDeCirculo(x, y, centerX, centerY, radius) {
     return Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2) <= radius;
@@ -556,4 +606,27 @@ function puntoDentroDePoligono(x, y, radio, centerX, centerY, ladosPoligono, ang
 // Función para verificar si un punto está dentro de un rectángulo
 function puntoDentroDeRectangulo(x, y, startX, startY, width, height) {
     return x >= startX && x <= startX + width && y >= startY && y <= startY + height;
+}
+
+function exportarCanvas(formato) {
+    // Obtener el contenido del canvas como una URL de datos
+    const dataURL = canvas.toDataURL('image/' + formato);
+
+    // Crear un elemento <a> para descargar la imagen
+    const enlaceDescarga = document.createElement('a');
+    enlaceDescarga.href = dataURL;
+
+    // Establecer el nombre del archivo
+    enlaceDescarga.download = 'canvas_image.' + formato;
+
+    // Simular un clic en el enlace para iniciar la descarga
+    document.body.appendChild(enlaceDescarga);
+    enlaceDescarga.click();
+
+    // Limpiar el enlace y liberar recursos
+    document.body.removeChild(enlaceDescarga);
+}
+function limpiar(){
+    contexto.clearRect(0,0,canvas.width,canvas.height);
+    figurasDibujadas.splice(0, figurasDibujadas.length); 
 }
