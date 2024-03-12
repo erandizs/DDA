@@ -1,8 +1,8 @@
 #canvas{
   display: flex;
   flex-direction: row;
-  margin-left:-10%;
-  margin-top: 10%;
+  margin-left:-15%;
+  margin-top: 3%;
   background-color: rgb(255, 255, 255);
 }
 body{
@@ -38,7 +38,24 @@ body{
 }
 
 
-
+#dibujarTrapecioBtn{
+  
+  margin-right: 1%;
+    width: 10%;
+    height: 8%;
+    border-style: solid;
+  }
+  #adelanteBtn{
+    width: 5%;
+    height: 5%;
+      border-style: solid;
+  }
+  #atrasBtn{
+    margin-left: 25%;
+      width: 5%;
+      height: 5%;
+      border-style: solid;
+  }
 #dibujarCirculoBtn{
   
 margin-right: 1%;
@@ -185,4 +202,8 @@ border-style: solid;
 /* Estilos para el botón de guardar al pasar el cursor */
 .custom-save-button:hover {
   background-color: #0056b3;
+}
+#limpiartodo{
+ margin-left: 80%;
+ text-decoration-line:underline;
 }
