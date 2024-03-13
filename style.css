@@ -5,6 +5,7 @@
   margin-top: 3%;
   background-color: rgb(255, 255, 255);
 }
+
 body{
   background-color: rgb(196, 238, 238);
 }
@@ -38,13 +39,7 @@ body{
 }
 
 
-#dibujarTrapecioBtn{
-  
-  margin-right: 1%;
-    width: 10%;
-    height: 8%;
-    border-style: solid;
-  }
+
   #adelanteBtn{
     width: 5%;
     height: 5%;
@@ -116,25 +111,20 @@ margin-right: 1%;
   display: flex;
   flex-direction:row ;
 }
-.custom-file-upload {
-  display: inline-block;
-  padding: 10px 20px;
+#limpiartodo{
+ margin-left: 80%;
+ text-decoration-line:underline;
+}
+
+/* Estilos para el botón de opciones */
+.dropbtn {
+  background-color: rgb(196, 238, 238);
+  color: black;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
   cursor: pointer;
-  background-color: #007bff;
-  color: #fff;
-  border-radius: 5px;
-  border-style: solid;
-  transition: background-color 0.3s ease;
 }
-
-.custom-file-upload:hover {
-  background-color: #0056b3;
-}
-
-.custom-file-upload i {
-  margin-right: 10px;
-}
-
 
 /* Estilos para el contenedor del menú desplegable */
 .dropdown {
@@ -142,68 +132,49 @@ margin-right: 1%;
   display: inline-block;
 }
 
-/* Estilos para el botón que activa el menú desplegable */
-.dropbtn {
-  background-color: rgb(196, 238, 238);
-  padding: 15px; /* Ajusta el padding según sea necesario */
-  font-size: 14px;
-  border-style: solid;
-  cursor: pointer;
-  height: 9%;
-  border-width: 4.5px; 
-}
-
 /* Estilos para el contenido del menú desplegable */
 .dropdown-content {
   display: none;
   position: absolute;
   background-color: rgb(196, 238, 238);
-  
   min-width: 160px;
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
   z-index: 1;
 }
 
-/* Estilos para los elementos dentro del menú desplegable */
-.dropdown-content label,
-.dropdown-content button {
+/* Estilos para los elementos del menú desplegable */
+.dropdown-content button, .dropdown-content label {
   color: black;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
-  width: 100%;
-border-style: solid;
-  background: none;
   cursor: pointer;
 }
 
-/* Estilos para los elementos dentro del menú desplegable al pasar el cursor */
-.dropdown-content label:hover,
-.dropdown-content button:hover {
-  
-  background-color: #007bff;
-  color: white;
+/* Estilos para los elementos del menú desplegable al pasar el mouse */
+.dropdown-content button:hover, .dropdown-content label:hover {
+  background-color: #b2b2b2;
 }
 
-/* Mostrar el contenido del menú desplegable cuando se pasa el cursor sobre el contenedor */
-.dropdown:hover .dropdown-content {
+/* Estilo para mostrar el menú desplegable */
+.show {
   display: block;
 }
-
-/* Estilos para el botón de guardar */
-.custom-save-button {
-  background-color: #007bff;
-  border-style: solid;
-  color: white;
-  border: none;
-  cursor: pointer;
+/* Estilos para el botón de Guardar */
+#guardarComoBtn {
+  background-color: rgb(196, 238, 238);
+  color: black; /* Color del texto blanco */
+  padding: 12px 20px; /* Espaciado interno */
+  border: none; /* Sin borde */
+  cursor: pointer; /* Cursor de puntero */
+  text-decoration: none; /* Sin subrayado */
+  display: block; /* Bloque de visualización */
+  width: 100%; /* Ancho del botón al 100% */
+  text-align: center; /* Alineación del texto al centro */
+  border-top: solid;
 }
 
-/* Estilos para el botón de guardar al pasar el cursor */
-.custom-save-button:hover {
-  background-color: #0056b3;
-}
-#limpiartodo{
- margin-left: 80%;
- text-decoration-line:underline;
+/* Estilos para el botón de Guardar al pasar el mouse */
+#guardarComoBtn:hover {
+  background-color: #b2b2b2;
 }

@@ -8,46 +8,45 @@
     </head>
     <body>
         <div class="todo">
-          
-            <div class="figuras">
-                <div class="dropdown">
-                    <button class="dropbtn">Opciones</button>
-                    <div class="dropdown-content">
-                        <label for="inputArchivo" class="custom-file-upload">
-                            <i class="fas fa-cloud-upload-alt"></i> Abrir archivo
-                        </label>
-                        <input type="file" id="inputArchivo" accept=".json" style="display: none;">
-                        <button id="guardarComoBtn" class="custom-save-button">Guardar</button>
-                    </div>
-                </div>
-                
-           
-                
-                
-                <div class="colors">
-                    <div class="color-titulo">Colores</div>
-                    <div class="colores-contenedor">
-                        <div class="img_colores">
-                            <img id="verdeBtn" src="verde.png" title="Verde" width="40%">
-                            <img id="azulBtn" src="azul.png" title="Azul" width="40%">
-                        </div>
-                        <div class="colores2">
-                            <img id="rojoBtn" src="rojo.png" title="Rojo" width="40%">
-                            <img id="negroBtn" src="negro.jpg" title="Negro" width="40%">
+             <div class="canvasno">
+
+            
+                <div class="figuras">
+                    <div class="dropdown" id="opcionesDropdown">
+                        <button class="dropbtn" id="opcionesBtn">Opciones</button>
+                        <div class="dropdown-content" id="opcionesContent">
+                            <label for="inputArchivo" class="custom-file-upload">
+                                <i class="fas fa-cloud-upload-alt"></i> Abrir archivo
+                            </label>
+                            <input type="file" id="inputArchivo" accept=".json" style="display: none;">
+                            <button id="guardarComoBtn" class="custom-save-button">Guardar</button>
                         </div>
                     </div>
+            
+                    <div class="colors">
+                        <div class="color-titulo">Colores</div>
+                        <div class="colores-contenedor">
+                            <div class="img_colores">
+                                <img id="verdeBtn" src="verde.png" title="Verde" width="40%">
+                                <img id="azulBtn" src="azul.png" title="Azul" width="40%">
+                            </div>
+                            <div class="colores2">
+                                <img id="rojoBtn" src="rojo.png" title="Rojo" width="40%">
+                                <img id="negroBtn" src="negro.jpg" title="Negro" width="40%">
+                            </div>
+                        </div>
+                    </div>
+                    <img id="dibujarBtn" src="lapiz.jpg" title="Lapiz"></img>
+                    <img id="borraBtn" src="BORRADOR.png" title="Borrador"></img>
+                    <img id="dibujarCirculoBtn" src="circulo.jpg" title="Circulo"></img>
+                    <img id="dibujarLineaBtn" src="linea.jpg" title="Linea"></img>
+                    <img id="dibujarCuadradoBtn" src="cuadrado.jpg" title="Cuadrado"></img>
+                    <img id="dibujarRectanguloBtn" src="rectangulo.jpg" title="Rectangulo"></img>
+                    <img id="dibujarElipseBtn" src="elipse.jpg" title="Elipse"></img>
+                    <img id="dibujarPoligonoBtn" src="POLIGONO.jpg" title="Poligono" onclick="pedirLadosPoligono()"></img>
+                
                 </div>
-                <img id="dibujarBtn" src="lapiz.jpg" title="Lapiz"></img>
-                <img id="borraBtn" src="BORRADOR.png" title="Borrador"></img>
-                <img id="dibujarCirculoBtn" src="circulo.jpg" title="Circulo"></img>
-                <img id="dibujarLineaBtn" src="linea.jpg" title="Linea"></img>
-                <img id="dibujarCuadradoBtn" src="cuadrado.jpg" title="Cuadrado"></img>
-                <img id="dibujarRectanguloBtn" src="rectangulo.jpg" title="Rectangulo"></img>
-                <img id="dibujarElipseBtn" src="elipse.jpg" title="Elipse"></img>
-                <img id="dibujarPoligonoBtn" src="POLIGONO.jpg" title="Poligono" onclick="pedirLadosPoligono()"></img>
-              
             </div>
-        
             
           
             <div class="canvas">

@@ -1,15 +1,11 @@
 var canvas = document.getElementById('canvas');
 var contexto = canvas.getContext('2d');
-<<<<<<< HEAD
-var dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo,dibujando=false;
-=======
 contexto.canvas.willReadFrequently = true;
 var dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo,dibujarBtn,dibujandoTrapecio=false;
->>>>>>> gh-pages
 // coordenadas del mouse
 
 var startX, startY, endX, endY;
-
+var figuraSeleccionada=null;
 // Coordenadas de los cuatro puntos del trapecio
 var punto1X, punto1Y, punto2X, punto2Y, punto3X, punto3Y, punto4X, punto4Y;
 
@@ -20,7 +16,47 @@ var figurasDibujadas= [];
 let ladosPoligono=0;
 let flag=0;
 var isDrawing=false;
-//console.log(figuras)
+// Variable para almacenar la posición actual en el historial de acciones
+let posicion = -1;
+function deshacer() {
+    if (posicion > 0) { // Verifica que haya acciones para deshacer
+        posicion--;
+        dibujarFiguras(figurasDibujadas.slice(0, posicion + 1));
+    }
+}
+
+function rehacer() {
+    if (posicion < figurasDibujadas.length - 1) { // Verifica que haya acciones para rehacer
+        posicion++;
+        dibujarFiguras(figurasDibujadas.slice(0, posicion + 1));
+    }
+}
+// Obtener referencia a los elementos del menú desplegable
+const opcionesBtn = document.getElementById('opcionesBtn');
+const opcionesContent = document.getElementById('opcionesContent');
+
+// Función para abrir o cerrar el menú desplegable al hacer clic en el botón
+function toggleOpciones() {
+    opcionesContent.classList.toggle('show');
+}
+
+// Agregar evento de clic al botón de opciones para abrir o cerrar el menú
+opcionesBtn.addEventListener('click', toggleOpciones);
+
+// Cerrar el menú si el usuario hace clic fuera de él
+window.addEventListener('click', function(event) {
+    if (!event.target.matches('#opcionesBtn')) {
+        if (opcionesContent.classList.contains('show')) {
+            opcionesContent.classList.remove('show');
+        }
+    }
+});
+document.getElementById('atrasBtn').addEventListener('click', function() {
+    deshacer();
+ });
+ document.getElementById('adelanteBtn').addEventListener('click', function() {
+    rehacer();
+ });
 
 document.getElementById('verdeBtn').addEventListener('click', function() {
    color=[0, 255, 0];
@@ -34,16 +70,10 @@ document.getElementById('rojoBtn').addEventListener('click', function() {
  document.getElementById('negroBtn').addEventListener('click', function() {
     color=[0, 0, 0];
  });
-<<<<<<< HEAD
- document.getElementById('dibujarBtn').addEventListener('click', function() {
-    dibujando=true;
-   
-=======
 
  document.getElementById('dibujarBtn').addEventListener('click', function() {
     dibujarBtn=true;
    flag_borrador=false;
->>>>>>> gh-pages
     dibujandoCirculo = false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
@@ -60,10 +90,7 @@ document.getElementById('dibujarCirculoBtn').addEventListener('click', function(
     dibujandoPoligono=false;
     dibujandoRectangulo=false;
     dibujando=false;
-<<<<<<< HEAD
-=======
     flag_borrador=false;
->>>>>>> gh-pages
     flag=0;
 });
 //listener boton linea
@@ -140,6 +167,17 @@ canvas.addEventListener('mousedown', function(event) {
       
        // ladosPoligono++;
     }
+
+    const mouseX = event.clientX - canvas.getBoundingClientRect().left;
+    const mouseY = event.clientY - canvas.getBoundingClientRect().top;
+
+    // Si no hay ninguna figura seleccionada, intenta seleccionar una
+    if (!figuraSeleccionada) {
+        seleccionarFigura(mouseX, mouseY);
+    } else {
+        // Si ya hay una figura seleccionada, limpia la selección
+        figuraSeleccionada = null;
+    }
 });
 
 canvas.addEventListener("mousemove", function(event) {
@@ -177,7 +215,8 @@ canvas.addEventListener('mouseup', function(event) {
             color:color
         };
         figurasDibujadas.push(circulo);
-        dibujarFiguras(figurasDibujadas);
+ 
+      //  dibujarFiguras(figurasDibujadas);
      
     }else if(dibujandoLinea){
         dibujarLineaDDA(startX,startY,endX,endY,color);
@@ -190,7 +229,7 @@ canvas.addEventListener('mouseup', function(event) {
             color:color
         };
         figurasDibujadas.push(linea);
-        dibujarFiguras(figurasDibujadas);
+      //  dibujarFiguras(figurasDibujadas);
     }else if(dibujandoCuadrado){
         lado = Math.sqrt(((endX - startX) ** 2) + ((endY - startY) ** 2));
         dibujarCuadrado(startX, startY, lado, color);
@@ -202,7 +241,7 @@ canvas.addEventListener('mouseup', function(event) {
             color: color
         };
         figurasDibujadas.push(cuadrado);
-        dibujarFiguras(figurasDibujadas);
+      //  dibujarFiguras(figurasDibujadas);
 }else if (dibujandoElipse) {
         //centro
         let centerX = (startX + endX) / 2;
@@ -223,7 +262,7 @@ canvas.addEventListener('mouseup', function(event) {
             color:color
         };
         figurasDibujadas.push(elipse);
-        dibujarFiguras(figurasDibujadas);
+      //  dibujarFiguras(figurasDibujadas);
     }else if(dibujandoPoligono){
         let angulo = Math.atan2(endX-startX,endY-startY);
         let radio = Math.sqrt(Math.pow(endX-startX,2)+Math.pow(endY-startY,2));
@@ -239,7 +278,7 @@ canvas.addEventListener('mouseup', function(event) {
             color:color
         };
         figurasDibujadas.push(poligono);
-        dibujarFiguras(figurasDibujadas);
+       // dibujarFiguras(figurasDibujadas);
     } if(dibujandoRectangulo){
         // Calcular el ancho y alto del rectángulo
        var width = endX - startX;
@@ -254,7 +293,7 @@ canvas.addEventListener('mouseup', function(event) {
            color:color
        };
        figurasDibujadas.push(rectangulo);
-       dibujarFiguras(figurasDibujadas);
+      // dibujarFiguras(figurasDibujadas);
    }
 
      // Restablecer la bandera de dibujo
@@ -344,7 +383,7 @@ function dibujarCuadrado(x, y, lado,color) {
     dibujarLineaDDA(x2, y2, x3, y3,color); // Lado inferior
     dibujarLineaDDA(x3, y3, x0, y0,color); // Lado izquierdo
 
-  
+
 }
 
 
@@ -401,6 +440,9 @@ function dibujarCuadrado(x, y, lado,color) {
             case 'cuadrado':
                 dibujarCuadrado(figura.startX, figura.startY, figura.lado,figura.color);
                 break;
+            case 'pixel':
+                drawPixel(figura.x,figura.y,figura.color);
+                break;
         }
     }
 }
@@ -424,6 +466,8 @@ function dibujarRectangulo(x, y, width, height, color) {
 
 
 function drawPixel(x, y, color) {
+ 
+
     // Verificar si el píxel ya está ocupado por una figura dibujada previamente
     const pixelData = contexto.getImageData(x, y, 1, 1).data;
     if (pixelData[3] !== 0) { // Si la opacidad es diferente de cero, significa que ya hay una figura dibujada en este píxel
@@ -442,6 +486,17 @@ function drawPixel(x, y, color) {
 
     // Dibujar el píxel
     contexto.putImageData(imageData, x, y);
+    if(dibujarBtn){
+        const figura = {
+            tipo: 'pixel',
+            x: x,
+            y: y,
+            color: color.slice() // Clonar el array de color para evitar cambios no deseados
+        };
+        figurasDibujadas.push(figura);
+        
+   
+    }
 }
 // Función para exportar la imagen del canvas en el formato especificado
 function exportarImagenCanvas(formato) {
@@ -456,8 +511,8 @@ function obtenerColorFondo() {
     return estilo.backgroundColor;
 }
   document.getElementById('guardarComoBtn').addEventListener('click', function() {
-    const opciones = ['PNG', 'PDF', 'JPG'];
-    const eleccion = prompt('Seleccione el formato para exportar (PNG, PDF, JPG):', 'PNG');
+    const opciones = ['PNG', 'PDF'];
+    const eleccion = prompt('Seleccione el formato para exportar (PNG, PDF):', 'PNG');
 
     if (eleccion && opciones.includes(eleccion.toUpperCase())) {
         const formato = eleccion.toUpperCase();
@@ -491,7 +546,7 @@ function obtenerColorFondo() {
         // Exportar la imagen del canvas en el formato especificado
         exportarImagenCanvas(formato);
     } else {
-        alert('Formato no válido. Por favor, seleccione entre PNG, PDF o JPG.');
+        alert('Formato no válido. Por favor, seleccione entre PNG o PDF.');
     }
 });
 
@@ -555,7 +610,8 @@ document.getElementById('borraBtn').addEventListener('click', function() {
                         (figura.tipo === 'elipse' && puntoDentroDeElipse(x, y, figura.centerX, figura.centerY, figura.radiusX, figura.radiusY)) ||
                         (figura.tipo === 'poligono' && puntoDentroDePoligono(x, y, figura.radio, figura.startX, figura.startY, figura.lado_d, figura.angulo)) ||
                         (figura.tipo === 'rectangulo' && puntoDentroDeRectangulo(x, y, figura.startX, figura.startY, figura.width, figura.height))
-                    ) {
+                 
+                        ) {
                         // Eliminar la figura del arreglo de figuras dibujadas
                         figurasDibujadas.splice(i, 1);
 
@@ -583,6 +639,8 @@ function dibujarTrapecio(x1, y1, x2, y2, x3, y3, x4, y4, color) {
     dibujarLineaDDA(x3, y3, x4, y4, color);
     dibujarLineaDDA(x4, y4, x1, y1, color);
 }
+
+
 // Función para verificar si un punto está dentro de un círculo
 function puntoDentroDeCirculo(x, y, centerX, centerY, radius) {
     return Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2) <= radius;
@@ -643,3 +701,7 @@ function limpiar(){
     contexto.clearRect(0,0,canvas.width,canvas.height);
     figurasDibujadas.splice(0, figurasDibujadas.length); 
 }
+
+
+
+
