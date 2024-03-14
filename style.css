@@ -51,6 +51,39 @@ body{
       height: 5%;
       border-style: solid;
   }
+  #dibujarTrapecioBtn{
+  
+    margin-right: 1%;
+      width: 10%;
+      height: 8%;
+      border-style: solid;
+  }
+  #dibujarRomboBtn{
+  
+    margin-right: 1%;
+      width: 10%;
+      height: 8%;
+      border-style: solid;
+    }
+    #aumentarPincelBtn{
+  
+      margin-right: 1%;
+        width: 10%;
+        height: 20%;
+        border-style: solid;
+      }
+      #reducirPincelBtn{
+  
+        margin-right: 1%;
+          width: 10%;
+          height: 20%;
+          border-style: solid;
+        }
+
+
+
+
+
 #dibujarCirculoBtn{
   
 margin-right: 1%;
@@ -58,11 +91,22 @@ margin-right: 1%;
   height: 8%;
   border-style: solid;
 }
+#escribirBtn{
+  
+  margin-right: 1%;
+    width: 10%;
+    height: 8%;
+    border-style: solid;
+  }
 #dibujarLineaBtn{
   margin-right: 1%;
   width: 10%;
   height: 8%;
   border-style: solid;
+}
+.aver{
+  display: flex;
+  flex-direction: row;
 }
 #borraBtn{
   margin-right: 1%;
@@ -173,6 +217,19 @@ margin-right: 1%;
   text-align: center; /* Alineación del texto al centro */
   border-top: solid;
 }
+#exportarBtn {
+  background-color: rgb(196, 238, 238);
+  color: black; /* Color del texto blanco */
+  padding: 12px 20px; /* Espaciado interno */
+  border: none; /* Sin borde */
+  cursor: pointer; /* Cursor de puntero */
+  text-decoration: none; /* Sin subrayado */
+  display: block; /* Bloque de visualización */
+  width: 100%; /* Ancho del botón al 100% */
+  text-align: center; /* Alineación del texto al centro */
+  border-top: solid;
+}
+
 
 /* Estilos para el botón de Guardar al pasar el mouse */
 #guardarComoBtn:hover {

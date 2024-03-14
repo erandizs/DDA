@@ -1,40 +1,98 @@
 var canvas = document.getElementById('canvas');
 var contexto = canvas.getContext('2d');
 contexto.canvas.willReadFrequently = true;
-var dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo,dibujarBtn,dibujandoTrapecio=false;
+var escribir,dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo,dibujarBtn,dibujandoTrapecio,dibujandoRombo=false;
 // coordenadas del mouse
 
 var startX, startY, endX, endY;
 var figuraSeleccionada=null;
-// Coordenadas de los cuatro puntos del trapecio
-var punto1X, punto1Y, punto2X, punto2Y, punto3X, punto3Y, punto4X, punto4Y;
-
+var flag_borrador=false;
+var size=5;
 var indiceActual = 0;
 var cantidadFiguras = 0;
 
 var figurasDibujadas= [];
+let  history_Stack=[];
 let ladosPoligono=0;
 let flag=0;
 var isDrawing=false;
 // Variable para almacenar la posición actual en el historial de acciones
-let posicion = -1;
-function deshacer() {
-    if (posicion > 0) { // Verifica que haya acciones para deshacer
-        posicion--;
-        dibujarFiguras(figurasDibujadas.slice(0, posicion + 1));
+
+document.getElementById('guardarComoBtn').addEventListener('click', function() {
+    guardarEnJSON();
+});
+document.getElementById('inputArchivo').addEventListener('click', function() {
+    cargarDesdeJSON();
+});
+document.getElementById('exportarBtn').addEventListener('click', function() {
+    const opcion = prompt("¿Desea exportar como PNG o como PDF? (Ingrese 'png' o 'pdf')");
+
+    if (opcion === 'png') {
+        exportarCanvas('png');
+    } else if (opcion === 'pdf') {
+        exportarComoPDF();
+    } else {
+        console.error('Formato de exportación no válido');
     }
+});
+function exportarComoPDF() {
+    const pdf = new jsPDF();
+    const canvasDataURL = canvas.toDataURL('image/png');
+    const width = pdf.internal.pageSize.getWidth();
+    const height = pdf.internal.pageSize.getHeight();
+    pdf.addImage(canvasDataURL, 'PNG', 0, 0, width, height);
+    pdf.save('canvas_export.pdf');
 }
 
-function rehacer() {
-    if (posicion < figurasDibujadas.length - 1) { // Verifica que haya acciones para rehacer
-        posicion++;
-        dibujarFiguras(figurasDibujadas.slice(0, posicion + 1));
+function preguntarFormatoExportacion() {
+    const opcion = prompt("¿Desea exportar como PNG o como PDF? (Ingrese 'png' o 'pdf')");
+
+    if (opcion === 'png') {
+        exportarCanvas('png');
+    } else if (opcion === 'pdf') {
+        exportarCanvas('pdf');
+    } else {
+        console.error('Formato de exportación no válido');
     }
 }
 // Obtener referencia a los elementos del menú desplegable
 const opcionesBtn = document.getElementById('opcionesBtn');
 const opcionesContent = document.getElementById('opcionesContent');
+document.getElementById('escribirBtn').addEventListener('click', function() {
+    escribir=true;
+    dibujandoRombo=true;
+    dibujandoTrapecio=false;
+    dibujarBtn=false;
+    flag_borrador=false;
+     dibujandoCirculo = false;
+     dibujandoLinea = false; // no se dibuje una línea
+     dibujandoCuadrado=false;
+     dibujandoElipse=false;
+     dibujandoPoligono=false;
+     dibujandoRectangulo=false;
+});
+document.getElementById('atrasBtn').addEventListener('click', function() {
+    deshacer();
+});
+document.getElementById('adelanteBtn').addEventListener('click', function() {
+    rehacer();
+ });
+ 
+function deshacer(){//undo
+    if (figurasDibujadas.length > 0) {
+        history_Stack.push(figurasDibujadas.pop());
+        console.log(history_Stack);
+        dibujarFiguras(figurasDibujadas);
+    }
+}
+function rehacer(){//redo
 
+    if (history_Stack.length > 0) {
+        figurasDibujadas.push(history_Stack.pop());
+        console.log(history_Stack);
+        dibujarFiguras(figurasDibujadas);
+    }
+}
 // Función para abrir o cerrar el menú desplegable al hacer clic en el botón
 function toggleOpciones() {
     opcionesContent.classList.toggle('show');
@@ -51,12 +109,67 @@ window.addEventListener('click', function(event) {
         }
     }
 });
-document.getElementById('atrasBtn').addEventListener('click', function() {
-    deshacer();
+document.getElementById('dibujarRomboBtn').addEventListener('click', function() {
+    dibujandoRombo=true;
+    escribir=false;
+    dibujandoTrapecio=false;
+    dibujarBtn=false;
+    flag_borrador=false;
+     dibujandoCirculo = false;
+     dibujandoLinea = false; // no se dibuje una línea
+     dibujandoCuadrado=false;
+     dibujandoElipse=false;
+     dibujandoPoligono=false;
+     dibujandoRectangulo=false;
  });
- document.getElementById('adelanteBtn').addEventListener('click', function() {
-    rehacer();
+ // Función para dibujar un rombo en el lienzo
+
+ 
+
+
+// Función para dibujar un rombo en el lienzo
+function dibujarRombo(centerX, centerY, width, height, color,size) {
+    // Definir los puntos que conforman los vértices del rombo
+    const pointA = [centerX, centerY - height / 2]; // Punto superior
+    const pointB = [centerX + width / 2, centerY]; // Punto derecho
+    const pointC = [centerX, centerY + height / 2]; // Punto inferior
+    const pointD = [centerX - width / 2, centerY]; // Punto izquierdo
+
+    // Dibujar los lados del rombo usando la función dibujarLineaDDA
+    dibujarLineaDDA(pointA[0], pointA[1], pointB[0], pointB[1], color,size);
+    dibujarLineaDDA(pointB[0], pointB[1], pointC[0], pointC[1], color,size);
+    dibujarLineaDDA(pointC[0], pointC[1], pointD[0], pointD[1], color,size);
+    dibujarLineaDDA(pointD[0], pointD[1], pointA[0], pointA[1], color,size);
+}
+
+
+document.getElementById('dibujarTrapecioBtn').addEventListener('click', function() {
+    dibujandoTrapecio=true;
+    dibujandoRombo=false;
+    dibujarBtn=false;
+    flag_borrador=false;
+     dibujandoCirculo = false;
+     dibujandoLinea = false; // no se dibuje una línea
+     dibujandoCuadrado=false;
+     dibujandoElipse=false;
+     dibujandoPoligono=false;
+     dibujandoRectangulo=false;
  });
+
+ // Función para dibujar un trapecio en el lienzo
+function dibujarTrapecio(startX, startY, endX, endY, color,size) {
+    // Definir los puntos que conforman los lados del trapecio
+    const pointA = [startX, startY]; // Vértice superior izquierdo
+    const pointB = [endX, startY]; // Vértice superior derecho
+    const pointC = [startX + (endX - startX) * 0.4, endY]; // Vértice inferior izquierdo
+    const pointD = [endX - (endX - startX) * 0.4, endY]; // Vértice inferior derecho
+
+    // Dibujar los lados del trapecio usando la función dibujarLineaDDA
+    dibujarLineaDDA(pointA[0], pointA[1], pointB[0], pointB[1], color,size);
+    dibujarLineaDDA(pointB[0], pointB[1], pointD[0], pointD[1], color,size);
+    dibujarLineaDDA(pointD[0], pointD[1], pointC[0], pointC[1], color,size);
+    dibujarLineaDDA(pointC[0], pointC[1], pointA[0], pointA[1], color,size);
+}
 
 document.getElementById('verdeBtn').addEventListener('click', function() {
    color=[0, 255, 0];
@@ -73,6 +186,7 @@ document.getElementById('rojoBtn').addEventListener('click', function() {
 
  document.getElementById('dibujarBtn').addEventListener('click', function() {
     dibujarBtn=true;
+    escribir=false;
    flag_borrador=false;
     dibujandoCirculo = false;
     dibujandoLinea = false; // no se dibuje una línea
@@ -80,13 +194,18 @@ document.getElementById('rojoBtn').addEventListener('click', function() {
     dibujandoElipse=false;
     dibujandoPoligono=false;
     dibujandoRectangulo=false;
+    dibujandoTrapecio=false;
+    dibujandoRombo=false;
  });
 //listener para el boton de circulo
 document.getElementById('dibujarCirculoBtn').addEventListener('click', function() {
     dibujandoCirculo = true;
+    escribir=false;
+    dibujandoTrapecio=false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
     dibujandoElipse=false;
+    dibujandoRombo=false;
     dibujandoPoligono=false;
     dibujandoRectangulo=false;
     dibujando=false;
@@ -96,10 +215,13 @@ document.getElementById('dibujarCirculoBtn').addEventListener('click', function(
 //listener boton linea
 document.getElementById('dibujarLineaBtn').addEventListener('click', function() {
     dibujandoLinea = true;
+    escribir=false;
     dibujandoCirculo = false; //  no se dibuje un círculo
     dibujandoCuadrado=false;
     dibujandoElipse=false;
     dibujandoPoligono=false;
+    dibujandoRombo=false;
+    dibujandoTrapecio=false;
     flag_borrador=false;
     dibujandoRectangulo=false;
     dibujando=false;
@@ -108,11 +230,14 @@ document.getElementById('dibujarLineaBtn').addEventListener('click', function() 
 //listener boton cuadrado
 document.getElementById('dibujarCuadradoBtn').addEventListener('click', function() {
     dibujandoLinea = false;
+    escribir=false;
     dibujandoCirculo = false; //  no se dibuje un círculo
     dibujandoCuadrado=true;
     dibujandoElipse=false;
     dibujandoPoligono=false;
     flag_borrador=false;
+    dibujandoTrapecio=false;
+    dibujandoRombo=false;
     dibujandoRectangulo=false;
     dibujando=false;
     flag=0;
@@ -120,10 +245,13 @@ document.getElementById('dibujarCuadradoBtn').addEventListener('click', function
 //listener boton elipse
 document.getElementById('dibujarElipseBtn').addEventListener('click', function() {
     dibujandoLinea = false;
+    escribir=false;
     dibujandoCirculo = false; //  no se dibuje un círculo
     dibujandoCuadrado=false;
     dibujandoElipse=true;
     dibujandoPoligono=false;
+    dibujandoTrapecio=false;
+    dibujandoRombo=false;
     flag_borrador=false;
     dibujandoRectangulo=false;
     dibujando=false;
@@ -131,9 +259,12 @@ document.getElementById('dibujarElipseBtn').addEventListener('click', function()
 });
 document.getElementById('dibujarPoligonoBtn').addEventListener('click', function() {
     dibujandoCirculo = false;
+    escribir=false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
+    dibujandoTrapecio=false;
     dibujandoElipse=false;
+    dibujandoRombo=false;
     flag_borrador=false;
     dibujandoRectangulo=false;
     dibujando=false;
@@ -143,11 +274,14 @@ document.getElementById('dibujarPoligonoBtn').addEventListener('click', function
 });
 document.getElementById('dibujarRectanguloBtn').addEventListener('click', function() {
     dibujandoCirculo = false;
+    escribir=false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
     dibujandoElipse=false;
     flag_borrador=false;
+    dibujandoRombo=false;
     dibujandoRectangulo=true;
+    dibujandoTrapecio=false;
     dibujandoPoligono=false;
     dibujando=false;
     flag=1;
@@ -157,7 +291,7 @@ document.getElementById('dibujarRectanguloBtn').addEventListener('click', functi
 // agarrar las coordenadas del mouse cuqando hace clic
 canvas.addEventListener('mousedown', function(event) {
     isDrawing = true;
-    if(dibujandoCirculo || dibujandoLinea || dibujandoCuadrado || dibujandoElipse||dibujandoRectangulo){
+    if(dibujandoCirculo || dibujandoLinea || dibujandoCuadrado || dibujandoElipse||dibujandoRectangulo||dibujandoTrapecio||dibujandoRombo){
         startX = event.offsetX; // x relativo al canvas
         startY = event.offsetY; // y relativo al canvas
     }
@@ -173,7 +307,7 @@ canvas.addEventListener('mousedown', function(event) {
 
     // Si no hay ninguna figura seleccionada, intenta seleccionar una
     if (!figuraSeleccionada) {
-        seleccionarFigura(mouseX, mouseY);
+       // seleccionarFigura(mouseX, mouseY);
     } else {
         // Si ya hay una figura seleccionada, limpia la selección
         figuraSeleccionada = null;
@@ -184,8 +318,18 @@ canvas.addEventListener("mousemove", function(event) {
     if (!isDrawing) return;
     endX = event.offsetX; // x relativo al canvas
     endY = event.offsetY; // y relativo al canvas
+    if(flag_borrador){
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+    
+        // Borrar el píxel en las coordenadas actuales
+        contexto.clearRect(x, y, size, size);
+    }
+   
     if(dibujarBtn){
-        drawPixel(endX,endY, color); 
+    
+        drawPixel(endX,endY, color,size); 
     }
 });
 
@@ -204,7 +348,7 @@ canvas.addEventListener('mouseup', function(event) {
         
     //  dibujarLinea(startX,startY,endX,endY);
         const radius = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2) / 2;
-        dibujarCirculo(centerX,centerY,radius,color);
+        dibujarCirculo(centerX,centerY,radius,color,size);
       //METER AL VECTOR
         let circulo = {
             tipo: 'circulo',
@@ -219,7 +363,7 @@ canvas.addEventListener('mouseup', function(event) {
       //  dibujarFiguras(figurasDibujadas);
      
     }else if(dibujandoLinea){
-        dibujarLineaDDA(startX,startY,endX,endY,color);
+        dibujarLineaDDA(startX,startY,endX,endY,color,size);
         let linea = {
             tipo: 'linea',
             startX: startX,
@@ -232,7 +376,7 @@ canvas.addEventListener('mouseup', function(event) {
       //  dibujarFiguras(figurasDibujadas);
     }else if(dibujandoCuadrado){
         lado = Math.sqrt(((endX - startX) ** 2) + ((endY - startY) ** 2));
-        dibujarCuadrado(startX, startY, lado, color);
+        dibujarCuadrado(startX, startY, lado, color,size);
         let cuadrado = {
             tipo: 'cuadrado',
             startX: startX,
@@ -252,7 +396,7 @@ canvas.addEventListener('mouseup', function(event) {
         let radiusY = Math.abs((endY - startY) / 2);
         
      
-        dibujarElipse(centerX, centerY, radiusX, radiusY,color);
+        dibujarElipse(centerX, centerY, radiusX, radiusY,color,size);
         let elipse = {
             tipo: 'elipse',
             centerX: centerX,
@@ -267,7 +411,7 @@ canvas.addEventListener('mouseup', function(event) {
         let angulo = Math.atan2(endX-startX,endY-startY);
         let radio = Math.sqrt(Math.pow(endX-startX,2)+Math.pow(endY-startY,2));
         console.log(ladosPoligono);
-        dibujarPoligono2(radio,startX,startY,lado_d,angulo,color);
+        dibujarPoligono2(radio,startX,startY,lado_d,angulo,color,size);
         let poligono = {
             tipo: 'poligono',
             radio: radio,
@@ -283,7 +427,7 @@ canvas.addEventListener('mouseup', function(event) {
         // Calcular el ancho y alto del rectángulo
        var width = endX - startX;
        var height = endY - startY;
-       dibujarRectangulo(startX, startY, width, height,color);
+       dibujarRectangulo(startX, startY, width, height,color,size);
        let rectangulo = {
            tipo: 'rectangulo',
            startX: startX,
@@ -294,6 +438,42 @@ canvas.addEventListener('mouseup', function(event) {
        };
        figurasDibujadas.push(rectangulo);
       // dibujarFiguras(figurasDibujadas);
+   }else if(dibujandoTrapecio){
+      dibujarTrapecio(startX, startY, endX, endY,color,size);
+      let trapecio = {
+        tipo: 'trapecio',
+        startX: startX,
+        startY: startY,
+        endX:endX,
+        endY:endY,
+        color:color,
+        size:size
+    };
+    figurasDibujadas.push(trapecio);
+   }if(dibujandoRombo){
+     // Calcular el centro, ancho y alto del rombo
+     
+     let centerX = (startX + endX)/2 ;
+     let centerY = (startY + endY)/2 ;
+    // Calcular el ancho y la altura del rombo
+    let width = Math.abs(endX - startX);
+    let height = Math.abs(endY - startY);
+
+     // Dibujar el rombo
+     dibujarRombo(centerX, centerY, width, height, color,size);
+
+     // Guardar la información del rombo en el arreglo de figuras dibujadas
+     let rombo = {
+         tipo: 'rombo',
+         centerX: centerX,
+         centerY: centerY,
+         width: width,
+         height: height,
+         color: color,
+         size:size
+     };
+     figurasDibujadas.push(rombo);
+    
    }
 
      // Restablecer la bandera de dibujo
@@ -314,19 +494,19 @@ function pedirLadosPoligono() {
  
 }
 
-function dibujarPoligono2(radio,centerX,centerY,ladosPoligono,angulo,color) {
+function dibujarPoligono2(radio,centerX,centerY,ladosPoligono,angulo,color,size) {
         console.log(ladosPoligono);
         var angulo_inicial=(2*Math.PI)/ladosPoligono,lastX=0,lastY=0;
         for(let i=0;i<ladosPoligono;i++){
             let step=i*angulo_inicial+angulo;
             let point=grados(centerX,centerY,radio,step);
             if(i>0){
-                dibujarLineaDDA(point.x,point.y,lastX,lastY,color);
+                dibujarLineaDDA(point.x,point.y,lastX,lastY,color,size);
             }
             lastX=point.x;
             lastY=point.y;
         }
-        dibujarLineaDDA(lastX,lastY,Math.round(centerX+radio*Math.cos(angulo)),Math.round(centerY+radio*Math.sin(angulo)),color)
+        dibujarLineaDDA(lastX,lastY,Math.round(centerX+radio*Math.cos(angulo)),Math.round(centerY+radio*Math.sin(angulo)),color,size)
 }
 function grados(centerX,centerY,radio,step){
     let pointX=Math.round(centerX+radio*Math.cos(step));
@@ -334,18 +514,18 @@ function grados(centerX,centerY,radio,step){
     return{x:pointX,y:pointY}
 }
 
-function dibujarElipse(centerX, centerY, radiusX, radiusY,color) {
+function dibujarElipse(centerX, centerY, radiusX, radiusY,color,size) {
    
     for (let angle = 0; angle < Math.PI * 2; angle += 0.01) {
         const x = Math.round(centerX + Math.cos(angle) * radiusX);
         const y = Math.round(centerY + Math.sin(angle) * radiusY);
-        drawPixel(x, y, color);
+        drawPixel(x, y, color,size);
     }
    
 }
 
 
-function dibujarLineaDDA(x0, y0, x1, y1,color) {
+function dibujarLineaDDA(x0, y0, x1, y1,color,size) {
     // diferencias en x y y
     let dx = x1 - x0;
     let dy = y1 - y0;
@@ -363,12 +543,12 @@ function dibujarLineaDDA(x0, y0, x1, y1,color) {
 
     // dibujar cada punto de la línea
     for (let i = 0; i <= steps; i++) {
-        drawPixel(Math.round(x), Math.round(y), color); // dibujar el píxel más cercano
+        drawPixel(Math.round(x), Math.round(y), color,size); // dibujar el píxel más cercano
         x += xIncrement;
         y += yIncrement;
     }
 }
-function dibujarCuadrado(x, y, lado,color) {
+function dibujarCuadrado(x, y, lado,color,size) {
     let x0 = x;
     let y0 = y;
     let x1 = x + lado;
@@ -378,33 +558,30 @@ function dibujarCuadrado(x, y, lado,color) {
     let x3 = x;
     let y3 = y + lado;
 
-    dibujarLineaDDA(x0, y0, x1, y1,color); // Lado superior
-    dibujarLineaDDA(x1, y1, x2, y2,color); // Lado derecho
-    dibujarLineaDDA(x2, y2, x3, y3,color); // Lado inferior
-    dibujarLineaDDA(x3, y3, x0, y0,color); // Lado izquierdo
+    dibujarLineaDDA(x0, y0, x1, y1,color,size); // Lado superior
+    dibujarLineaDDA(x1, y1, x2, y2,color,size); // Lado derecho
+    dibujarLineaDDA(x2, y2, x3, y3,color,size); // Lado inferior
+    dibujarLineaDDA(x3, y3, x0, y0,color,size); // Lado izquierdo
 
 
 }
 
 
 
-
-
-
-  function dibujarCirculo(x0, y0, radius,color) {
+  function dibujarCirculo(x0, y0, radius,color,size) {
       let x = radius;
       let y = 0;
       let err = 0;
 
       while (x >= y) {
-          drawPixel(x0 + x, y0 + y, color);
-          drawPixel(x0 + y, y0 + x, color);
-          drawPixel(x0 - y, y0 + x, color);
-          drawPixel(x0 - x, y0 + y, color);
-          drawPixel(x0 - x, y0 - y, color);
-          drawPixel(x0 - y, y0 - x, color);
-          drawPixel(x0 + y, y0 - x, color);
-          drawPixel(x0 + x, y0 - y, color);
+          drawPixel(x0 + x, y0 + y, color,size);
+          drawPixel(x0 + y, y0 + x, color,size);
+          drawPixel(x0 - y, y0 + x, color,size);
+          drawPixel(x0 - x, y0 + y, color,size);
+          drawPixel(x0 - x, y0 - y, color,size);
+          drawPixel(x0 - y, y0 - x, color,size);
+          drawPixel(x0 + y, y0 - x, color,size);
+          drawPixel(x0 + x, y0 - y, color,size);
 
           if (err <= 0) {
               y += 1;
@@ -418,37 +595,46 @@ function dibujarCuadrado(x, y, lado,color) {
 
   function dibujarFiguras(figurasDibujadas) {
     cantidadFiguras = figurasDibujadas.length;
+    contexto.clearRect(0,0,canvas.width,canvas.height);
     // Iterar sobre las figuras dibujadas y dibujarlas en el canvas
     for (let i = 0; i < figurasDibujadas.length; i++) {
         const figura = figurasDibujadas[i];
         switch (figura.tipo) {
             case 'rectangulo':
-                dibujarRectangulo(figura.startX, figura.startY, figura.width, figura.height,figura.color);
+                dibujarRectangulo(figura.startX, figura.startY, figura.width, figura.height,figura.color,figura.size);
                 break;
             case 'circulo':
-                dibujarCirculo(figura.centerX, figura.centerY, figura.radius,figura.color);
+                dibujarCirculo(figura.centerX, figura.centerY, figura.radius,figura.color,figura.size);
                 break;
             case 'linea':
-                dibujarLineaDDA(figura.startX, figura.startY, figura.endX, figura.endY,figura.color);
+                dibujarLineaDDA(figura.startX, figura.startY, figura.endX, figura.endY,figura.color,figura.size);
                 break;
             case 'elipse':
-                dibujarElipse(figura.centerX, figura.centerY, figura.radiusX, figura.radiusY,figura.color);
+                dibujarElipse(figura.centerX, figura.centerY, figura.radiusX, figura.radiusY,figura.color,figura.size);
                 break;
             case 'poligono':
-                dibujarPoligono2(figura.radio, figura.startX, figura.startY, figura.lado_d, figura.angulo,figura.color);
+                dibujarPoligono2(figura.radio, figura.startX, figura.startY, figura.lado_d, figura.angulo,figura.color,figura.size);
                 break;
             case 'cuadrado':
-                dibujarCuadrado(figura.startX, figura.startY, figura.lado,figura.color);
+                dibujarCuadrado(figura.startX, figura.startY, figura.lado,figura.color,figura.size);
                 break;
             case 'pixel':
-                drawPixel(figura.x,figura.y,figura.color);
+                drawPixel(figura.x,figura.y,figura.color,figura.size);
                 break;
+            case 'rombo':
+                
+                dibujarRombo(figura.centerX, figura.centerY, figura.width, figura.height, figura.color, figura.size);
+                break;
+            case 'trapecio':
+                dibujarTrapecio(figura.startX, figura.startY, figura.endX, figura.endY,figura.color,figura.size);
+                break;
+            
         }
     }
 }
 
 
-function dibujarRectangulo(x, y, width, height, color) {
+function dibujarRectangulo(x, y, width, height, color,size) {
     let x0 = x;
     let y0 = y;
     let x1 = x + width;
@@ -458,124 +644,52 @@ function dibujarRectangulo(x, y, width, height, color) {
     let x3 = x;
     let y3 = y + height;
 
-    dibujarLineaDDA(x0, y0, x1, y1, color); // Lado superior
-    dibujarLineaDDA(x1, y1, x2, y2, color); // Lado derecho
-    dibujarLineaDDA(x2, y2, x3, y3, color); // Lado inferior
-    dibujarLineaDDA(x3, y3, x0, y0, color); // Lado izquierdo
+    dibujarLineaDDA(x0, y0, x1, y1, color,size); // Lado superior
+    dibujarLineaDDA(x1, y1, x2, y2, color,size); // Lado derecho
+    dibujarLineaDDA(x2, y2, x3, y3, color,size); // Lado inferior
+    dibujarLineaDDA(x3, y3, x0, y0, color,size); // Lado izquierdo
 }
 
 
-function drawPixel(x, y, color) {
- 
-
+function drawPixel(x, y, color, size) {
     // Verificar si el píxel ya está ocupado por una figura dibujada previamente
     const pixelData = contexto.getImageData(x, y, 1, 1).data;
     if (pixelData[3] !== 0) { // Si la opacidad es diferente de cero, significa que ya hay una figura dibujada en este píxel
         return; // No cambie el color del píxel
     }
 
-    // Datos de píxeles del canvas
-    var imageData = contexto.createImageData(1, 1);
-    var data = imageData.data;
+    // Dibujar el píxel con el tamaño especificado
+    for (let i = x - size / 2; i < x + size / 2; i++) {
+        for (let j = y - size / 2; j < y + size / 2; j++) {
+            // Datos de píxeles del canvas
+            var imageData = contexto.createImageData(1, 1);
+            var data = imageData.data;
 
-    // Color del píxel
-    data[0] = color[0]; // Rojo
-    data[1] = color[1]; // Verde
-    data[2] = color[2]; // Azul
-    data[3] = 255; // Opacidad
+            // Color del píxel
+            data[0] = color[0]; // Rojo
+            data[1] = color[1]; // Verde
+            data[2] = color[2]; // Azul
+            data[3] = 255; // Opacidad
 
-    // Dibujar el píxel
-    contexto.putImageData(imageData, x, y);
-    if(dibujarBtn){
-        const figura = {
-            tipo: 'pixel',
-            x: x,
-            y: y,
-            color: color.slice() // Clonar el array de color para evitar cambios no deseados
-        };
-        figurasDibujadas.push(figura);
-        
-   
+            // Dibujar el píxel
+            contexto.putImageData(imageData, i, j);
+
+            // Guardar la figura dibujada si está en modo de dibujo
+            if (dibujarBtn) {
+                const figura = {
+                    tipo: 'pixel',
+                    x: i,
+                    y: j,
+                    color: color.slice(), // Clonar el array de color para evitar cambios no deseados
+                    size:size
+                };
+                figurasDibujadas.push(figura);
+             
+            }
+        }
     }
 }
-// Función para exportar la imagen del canvas en el formato especificado
-function exportarImagenCanvas(formato) {
-    const imagenData = canvas.toDataURL('image/' + formato);
-    const enlaceImagen = document.createElement('a');
-    enlaceImagen.href = imagenData;
-    enlaceImagen.download = 'canvas_image.' + formato.toLowerCase();
-    enlaceImagen.click();
-}
-function obtenerColorFondo() {
-    const estilo = getComputedStyle(canvas);
-    return estilo.backgroundColor;
-}
-  document.getElementById('guardarComoBtn').addEventListener('click', function() {
-    const opciones = ['PNG', 'PDF'];
-    const eleccion = prompt('Seleccione el formato para exportar (PNG, PDF):', 'PNG');
 
-    if (eleccion && opciones.includes(eleccion.toUpperCase())) {
-        const formato = eleccion.toUpperCase();
-
-        // Obtener el color de fondo del canvas
-        const colorFondo = obtenerColorFondo();
-
-        // Crear un objeto que contenga la información del fondo, color de cada figura y la imagen del canvas
-        const dataExportacion = {
-            fondo: colorFondo,
-            figuras: figurasDibujadas
-        };
-
-        // Convertir el objeto en formato JSON
-        const jsonData = JSON.stringify(dataExportacion);
-
-        // Crear un enlace <a> para descargar el archivo JSON
-        const enlaceDescarga = document.createElement('a');
-        enlaceDescarga.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
-
-        // Establecer el nombre del archivo
-        enlaceDescarga.download = 'canvas_data.json';
-
-        // Simular un clic en el enlace para iniciar la descarga
-        document.body.appendChild(enlaceDescarga);
-        enlaceDescarga.click();
-
-        // Limpiar el enlace y liberar recursos
-        document.body.removeChild(enlaceDescarga);
-
-        // Exportar la imagen del canvas en el formato especificado
-        exportarImagenCanvas(formato);
-    } else {
-        alert('Formato no válido. Por favor, seleccione entre PNG o PDF.');
-    }
-});
-
-
-// Función para cargar las figuras desde un archivo JSON
-function cargarFigurasDesdeArchivo(event) {
-    const archivo = event.target.files[0];
-
-    if (!archivo) return;
-
-    const lector = new FileReader();
-
-    lector.onload = function(event) {
-        const data = event.target.result;
-        const figurasGuardadas = JSON.parse(data);
-
-        // Dibujar las figuras recuperadas en el canvas
-        dibujarFiguras(figurasGuardadas);
-    };
-
-    lector.readAsText(archivo);
-}
-
-// Asociar la función cargarFigurasDesdeArchivo al cambio del input de tipo file
-document.getElementById('inputArchivo').addEventListener('change', cargarFigurasDesdeArchivo);
-
-
-
-//BORRAR
 
 
 document.getElementById('borraBtn').addEventListener('click', function() {
@@ -589,56 +703,51 @@ document.getElementById('borraBtn').addEventListener('click', function() {
     dibujandoElipse = false;
     dibujandoPoligono = false;
     dibujandoRectangulo = false;
+    dibujandoRombo=false;
+    dibujandoTrapecio=false;
     flag = 0;
    
     // Agregar un evento de clic al lienzo para eliminar figuras
         canvas.addEventListener('click', function(event) {
             if(flag_borrador){
-                // Obtener las coordenadas del clic
-                const x = event.offsetX;
-                const y = event.offsetY;
-
-                // Iterar sobre las figuras dibujadas
-                for (let i = 0; i < figurasDibujadas.length; i++) {
-                    const figura = figurasDibujadas[i];
-
-                    // Verificar si el clic está dentro de la figura
-                    if (
-                        (figura.tipo === 'circulo' && puntoDentroDeCirculo(x, y, figura.centerX, figura.centerY, figura.radius)) ||
-                        (figura.tipo === 'linea' && puntoEnLinea(x, y, figura.startX, figura.startY, figura.endX, figura.endY)) ||
-                        (figura.tipo === 'cuadrado' && puntoDentroDeCuadrado(x, y, figura.startX, figura.startY, figura.lado)) ||
-                        (figura.tipo === 'elipse' && puntoDentroDeElipse(x, y, figura.centerX, figura.centerY, figura.radiusX, figura.radiusY)) ||
-                        (figura.tipo === 'poligono' && puntoDentroDePoligono(x, y, figura.radio, figura.startX, figura.startY, figura.lado_d, figura.angulo)) ||
-                        (figura.tipo === 'rectangulo' && puntoDentroDeRectangulo(x, y, figura.startX, figura.startY, figura.width, figura.height))
-                 
-                        ) {
-                        // Eliminar la figura del arreglo de figuras dibujadas
-                        figurasDibujadas.splice(i, 1);
-
-                        // Volver a dibujar el canvas sin la figura eliminada
-                        contexto.clearRect(0, 0, canvas.width, canvas.height);
-                        dibujarFiguras(figurasDibujadas);
-
-                        // Salir del bucle después de eliminar la primera figura encontrada
-                        break;
+                if(flag_borrador){
+                    // Obtener las coordenadas del clic
+                    const x = event.offsetX;
+                    const y = event.offsetY;
+    
+                    // Iterar sobre las figuras dibujadas
+                    for (let i = 0; i < figurasDibujadas.length; i++) {
+                        const figura = figurasDibujadas[i];
+    
+                        // Verificar si el clic está dentro de la figura
+                        if (
+                            (figura.tipo === 'circulo' && puntoDentroDeCirculo(x, y, figura.centerX, figura.centerY, figura.radius)) ||
+                            (figura.tipo === 'linea' && puntoEnLinea(x, y, figura.startX, figura.startY, figura.endX, figura.endY)) ||
+                            (figura.tipo === 'cuadrado' && puntoDentroDeCuadrado(x, y, figura.startX, figura.startY, figura.lado)) ||
+                            (figura.tipo === 'elipse' && puntoDentroDeElipse(x, y, figura.centerX, figura.centerY, figura.radiusX, figura.radiusY)) ||
+                            (figura.tipo === 'poligono' && puntoDentroDePoligono(x, y, figura.radio, figura.startX, figura.startY, figura.lado_d, figura.angulo)) ||
+                            (figura.tipo === 'rectangulo' && puntoDentroDeRectangulo(x, y, figura.startX, figura.startY, figura.width, figura.height)) ||
+                            (figura.tipo === 'trapecio' && puntoDentroDeTrapecio(x, y, figura.startX, figura.startY, figura.endX, figura.endY)) ||
+                            (figura.tipo === 'rombo' && puntoDentroDeRombo(x, y, figura.centerX, figura.centerY, figura.width, figura.height))
+                            ) {
+                            // Eliminar la figura del arreglo de figuras dibujadas
+                            figurasDibujadas.splice(i, 1);
+    
+                            // Volver a dibujar el canvas sin la figura eliminada
+                            contexto.clearRect(0, 0, canvas.width, canvas.height);
+                            dibujarFiguras(figurasDibujadas);
+    
+                            // Salir del bucle después de eliminar la primera figura encontrada
+                            break;
+                        }
                     }
-                    }
-            }
-            if(dibujandoTrapecio){
-             
-                
+                }
             }
         });
     
     
 });
-function dibujarTrapecio(x1, y1, x2, y2, x3, y3, x4, y4, color) {
-    // Dibujar las cuatro líneas que forman el trapecio
-    dibujarLineaDDA(x1, y1, x2, y2, color);
-    dibujarLineaDDA(x2, y2, x3, y3, color);
-    dibujarLineaDDA(x3, y3, x4, y4, color);
-    dibujarLineaDDA(x4, y4, x1, y1, color);
-}
+
 
 
 // Función para verificar si un punto está dentro de un círculo
@@ -679,6 +788,29 @@ function puntoDentroDeRectangulo(x, y, startX, startY, width, height) {
     return x >= startX && x <= startX + width && y >= startY && y <= startY + height;
 }
 
+
+function puntoDentroDeTrapecio(x, y, startX, startY, endX, endY) {
+    const topY = startY;
+    const bottomY = endY;
+    const leftX = startX + (endX - startX) * 0.4;
+    const rightX = endX - (endX - startX) * 0.4;
+
+    // Verificar si el punto está dentro del trapecio (usando la fórmula del rectángulo)
+    return x >= leftX && x <= rightX && y >= topY && y <= bottomY;
+}
+
+function puntoDentroDeRombo(x, y, centerX, centerY, width, height) {
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
+    const top = centerY - halfHeight;
+    const bottom = centerY + halfHeight;
+    const left = centerX - halfWidth;
+    const right = centerX + halfWidth;
+
+    // Verificar si el punto está dentro del rombo (usando la fórmula del rectángulo)
+    return x >= left && x <= right && y >= top && y <= bottom;
+}
+
 function exportarCanvas(formato) {
     // Obtener el contenido del canvas como una URL de datos
     const dataURL = canvas.toDataURL('image/' + formato);
@@ -700,6 +832,60 @@ function exportarCanvas(formato) {
 function limpiar(){
     contexto.clearRect(0,0,canvas.width,canvas.height);
     figurasDibujadas.splice(0, figurasDibujadas.length); 
+}
+function updateVolume(val) {
+    size=val;
+}
+
+function guardarEnJSON() {
+    const jsonFiguras = JSON.stringify(figurasDibujadas);
+    localStorage.setItem('figurasJSON', jsonFiguras);
+
+    // Crear un enlace de descarga
+    const blob = new Blob([jsonFiguras], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'figuras.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+
+// Cargar desde JSON
+function cargarDesdeJSON() {
+    // Crear un input de tipo archivo en el DOM
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+
+    // Escuchar el evento change del input
+    input.addEventListener('change', function(event) {
+        const archivo = event.target.files[0];
+        const lector = new FileReader();
+
+        lector.onload = function(event) {
+            const contenido = event.target.result;
+            const figurasJSON = JSON.parse(contenido);
+
+            // Limpiar el canvas
+            contexto.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar las figuras cargadas desde el JSON
+            dibujarFiguras(figurasJSON);
+
+            // Opcional: Actualizar el vector figurasDibujadas si es necesario
+            figurasDibujadas = figurasJSON;
+        };
+
+        // Leer el contenido del archivo como texto
+        lector.readAsText(archivo);
+    });
+
+    // Hacer clic en el input para abrir el gestor de archivos
+    input.click();
 }
 
 

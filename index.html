@@ -5,8 +5,12 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="style.css" rel="stylesheet">
+       
+
     </head>
     <body>
+    
+   
         <div class="todo">
              <div class="canvasno">
 
@@ -20,6 +24,7 @@
                             </label>
                             <input type="file" id="inputArchivo" accept=".json" style="display: none;">
                             <button id="guardarComoBtn" class="custom-save-button">Guardar</button>
+                            <button id="exportarBtn" class="custom-save-button">Exportar</button>
                         </div>
                     </div>
             
@@ -36,8 +41,14 @@
                             </div>
                         </div>
                     </div>
-                    <img id="dibujarBtn" src="lapiz.jpg" title="Lapiz"></img>
-                    <img id="borraBtn" src="BORRADOR.png" title="Borrador"></img>
+                    <div class="aver">
+                        <img id="dibujarBtn" src="lapiz.jpg" title="Lapiz"></img>                   
+                        <input type="range" id="volume" name="volume" min="1" max="10" value="5" title="Tamaño pincel" onchange="updateVolume(this.value)">
+                    </div>
+                  <img id="borraBtn" src="BORRADOR.png" title="Borrador"></img>
+                  <img id="escribirBtn" src="abc.jpg" title="escribir"></img>
+                    <img id="dibujarRomboBtn" src="rombo.jpg" title="Rombo"></img>
+                    <img id="dibujarTrapecioBtn" src="trapecio.jpg" title="Trapecio"></img>
                     <img id="dibujarCirculoBtn" src="circulo.jpg" title="Circulo"></img>
                     <img id="dibujarLineaBtn" src="linea.jpg" title="Linea"></img>
                     <img id="dibujarCuadradoBtn" src="cuadrado.jpg" title="Cuadrado"></img>
