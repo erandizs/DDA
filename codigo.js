@@ -1,7 +1,7 @@
 var canvas = document.getElementById('canvas');
 var contexto = canvas.getContext('2d');
 contexto.canvas.willReadFrequently = true;
-var escribir,dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo,dibujarBtn,dibujandoTrapecio,dibujandoRombo=false;
+var rotar,escribir,dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo,dibujarBtn,dibujandoTrapecio,dibujandoRombo=false;
 // coordenadas del mouse
 let anguloRotacion = 0;
 var startX, startY, endX, endY;
@@ -10,14 +10,15 @@ var flag_borrador=false;
 var size=5;
 var indiceActual = 0;
 var cantidadFiguras = 0;
-
+const toPDF = document.getElementById('toPDF');
 var figurasDibujadas= [];
 let  history_Stack=[];
 let ladosPoligono=0;
 let flag=0;
 var isDrawing=false;
+
 document.getElementById('rotarBtn').addEventListener('click', function() {
-  
+   rotar=true;
    escribir=false;
    anguloRotacion = 0;
    dibujandoRombo=false;
@@ -123,13 +124,16 @@ function seleccionarFigura(x, y) {
 document.getElementById('guardarComoBtn').addEventListener('click', function() {
     guardarEnJSON();
     anguloRotacion = 0;
+    rotar=false;
 });
 document.getElementById('inputArchivo').addEventListener('click', function() {
     cargarDesdeJSON();
     anguloRotacion = 0;
+    rotar=false;
 });
 document.getElementById('exportarBtn').addEventListener('click', function() {
     anguloRotacion = 0;
+    rotar=false;
     const opcion = prompt("¿Desea exportar como PNG o como PDF? (Ingrese 'png' o 'pdf')");
 
     if (opcion === 'png') {
@@ -180,10 +184,12 @@ document.getElementById('escribirBtn').addEventListener('click', function() {
 document.getElementById('atrasBtn').addEventListener('click', function() {
     deshacer();
     anguloRotacion = 0;
+    rotar=false;
 });
 document.getElementById('adelanteBtn').addEventListener('click', function() {
     rehacer();
     anguloRotacion = 0;
+    rotar=false;
  });
  
 function deshacer(){//undo
@@ -221,6 +227,7 @@ window.addEventListener('click', function(event) {
 document.getElementById('dibujarRomboBtn').addEventListener('click', function() {
     dibujandoRombo=true;
     escribir=false;
+    rotar=false;
     dibujandoTrapecio=false;
     dibujarBtn=false;
     flag_borrador=false;
@@ -262,7 +269,7 @@ document.getElementById('dibujarRomboBtn').addEventListener('click', function() 
         // Calcular las coordenadas absolutas después de la rotación y devolverlas
         return [rotatedX + centerX, rotatedY + centerY];
     });
-
+    rotar=false;
     // Dibujar los lados del rombo usando las coordenadas de los vértices rotados
     dibujarLineaDDA(rotatedVertices[0][0], rotatedVertices[0][1], rotatedVertices[1][0], rotatedVertices[1][1], color, size); // Lado superior
     dibujarLineaDDA(rotatedVertices[1][0], rotatedVertices[1][1], rotatedVertices[2][0], rotatedVertices[2][1], color, size); // Lado derecho
@@ -274,6 +281,7 @@ document.getElementById('dibujarRomboBtn').addEventListener('click', function() 
 
 document.getElementById('dibujarTrapecioBtn').addEventListener('click', function() {
     dibujandoTrapecio=true;
+    rotar=false;
     dibujandoRombo=false;
     dibujarBtn=false;
     flag_borrador=false;
@@ -285,65 +293,76 @@ document.getElementById('dibujarTrapecioBtn').addEventListener('click', function
      dibujandoRectangulo=false;
      anguloRotacion = 0;
  });
+ 
  function dibujarTrapecio(startX, startY, endX, endY, color, size, anguloRotacion) {
     // Calcular el centro del trapecio
     const centerX = (startX + endX) / 2;
     const centerY = (startY + endY) / 2;
 
-    // Calcular la longitud de la base mayor y la base menor del trapecio
-    const baseMayor = Math.abs(endX - startX);
-    const baseMenor = baseMayor * 0.4;
+    // Calcular las dimensiones del trapecio
+    const height = Math.abs(endY - startY);
+    const topWidth = Math.abs(startX - endX) / 2;
+    const bottomWidth = topWidth * 0.6;
 
-    // Calcular la altura del trapecio
-    const altura = Math.abs(endY - startY);
+    // Calcular las coordenadas de los vértices del trapecio en base al ángulo de rotación
+    const halfHeight = height / 2;
+    const halfTopWidth = topWidth / 2;
+    const halfBottomWidth = bottomWidth / 2;
 
-    // Calcular los puntos de los vértices del trapecio
-    const halfBaseMayor = baseMayor / 2;
-    const halfBaseMenor = baseMenor / 2;
+    const topLeftX = centerX - halfTopWidth;
+    const topLeftY = centerY - halfHeight;
+    const topRightX = centerX + halfTopWidth;
+    const topRightY = centerY - halfHeight;
+    const bottomRightX = centerX + halfBottomWidth;
+    const bottomRightY = centerY + halfHeight;
+    const bottomLeftX = centerX - halfBottomWidth;
+    const bottomLeftY = centerY + halfHeight;
 
-    const pointA = rotatePoint(startX, startY, centerX, centerY, anguloRotacion);
-    const pointB = rotatePoint(endX, startY, centerX, centerY, anguloRotacion);
-    const pointC = rotatePoint(centerX - halfBaseMenor, endY, centerX, centerY, anguloRotacion);
-    const pointD = rotatePoint(centerX + halfBaseMenor, endY, centerX, centerY, anguloRotacion);
-
-    // Dibujar los lados del trapecio usando la función dibujarLineaDDA
-    dibujarLineaDDA(pointA[0], pointA[1], pointB[0], pointB[1], color, size);
-    dibujarLineaDDA(pointB[0], pointB[1], pointD[0], pointD[1], color, size);
-    dibujarLineaDDA(pointD[0], pointD[1], pointC[0], pointC[1], color, size);
-    dibujarLineaDDA(pointC[0], pointC[1], pointA[0], pointA[1], color, size);
+    const rotatedTopLeft = rotatePoint(topLeftX, topLeftY, centerX, centerY, anguloRotacion);
+    const rotatedTopRight = rotatePoint(topRightX, topRightY, centerX, centerY, anguloRotacion);
+    const rotatedBottomRight = rotatePoint(bottomRightX, bottomRightY, centerX, centerY, anguloRotacion);
+    const rotatedBottomLeft = rotatePoint(bottomLeftX, bottomLeftY, centerX, centerY, anguloRotacion);
+    console.log(anguloRotacion);
+    rotar=false;
+    // Dibujar los lados del trapecio usando las coordenadas de los vértices rotados
+    dibujarLineaDDA(rotatedTopLeft.x, rotatedTopLeft.y, rotatedTopRight.x, rotatedTopRight.y, color, size);
+    dibujarLineaDDA(rotatedTopRight.x, rotatedTopRight.y, rotatedBottomRight.x, rotatedBottomRight.y, color, size);
+    dibujarLineaDDA(rotatedBottomRight.x, rotatedBottomRight.y, rotatedBottomLeft.x, rotatedBottomLeft.y, color, size);
+    dibujarLineaDDA(rotatedBottomLeft.x, rotatedBottomLeft.y, rotatedTopLeft.x, rotatedTopLeft.y, color, size);
 }
+
 
 // Función para rotar un punto alrededor de otro punto de referencia
 function rotatePoint(x, y, centerX, centerY, angle) {
-    const cosAngle = Math.cos(angle);
-    const sinAngle = Math.sin(angle);
-
-    const translatedX = x - centerX;
-    const translatedY = y - centerY;
-
-    const rotatedX = translatedX * cosAngle - translatedY * sinAngle;
-    const rotatedY = translatedX * sinAngle + translatedY * cosAngle;
-
-    return [rotatedX + centerX, rotatedY + centerY];
+    var newX = (x - centerX) * Math.cos(angle) - (y - centerY) * Math.sin(angle) + centerX;
+    var newY = (x - centerX) * Math.sin(angle) + (y - centerY) * Math.cos(angle) + centerY;
+    return { x: newX, y: newY };
+   
 }
+
 
 
 document.getElementById('verdeBtn').addEventListener('click', function() {
    color=[0, 255, 0];
+   rotar=false;
 });
 document.getElementById('rojoBtn').addEventListener('click', function() {
     color=[255, 0, 0];
+    rotar=false;
  });
  document.getElementById('azulBtn').addEventListener('click', function() {
     color=[0, 0, 255];
+    rotar=false;
  });
  document.getElementById('negroBtn').addEventListener('click', function() {
     color=[0, 0, 0];
+    rotar=false;
  });
 
  document.getElementById('dibujarBtn').addEventListener('click', function() {
     dibujarBtn=true;
     escribir=false;
+    rotar=false;
    flag_borrador=false;
     dibujandoCirculo = false;
     dibujandoLinea = false; // no se dibuje una línea
@@ -359,6 +378,7 @@ document.getElementById('rojoBtn').addEventListener('click', function() {
 document.getElementById('dibujarCirculoBtn').addEventListener('click', function() {
     dibujandoCirculo = true;
     escribir=false;
+    rotar=false;
     dibujandoTrapecio=false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
@@ -375,6 +395,7 @@ document.getElementById('dibujarCirculoBtn').addEventListener('click', function(
 document.getElementById('dibujarLineaBtn').addEventListener('click', function() {
     dibujandoLinea = true;
     escribir=false;
+    rotar=false;
     dibujandoCirculo = false; //  no se dibuje un círculo
     dibujandoCuadrado=false;
     dibujandoElipse=false;
@@ -391,6 +412,7 @@ document.getElementById('dibujarLineaBtn').addEventListener('click', function() 
 document.getElementById('dibujarCuadradoBtn').addEventListener('click', function() {
     dibujandoLinea = false;
     escribir=false;
+    rotar=false;
     dibujandoCirculo = false; //  no se dibuje un círculo
     dibujandoCuadrado=true;
     dibujandoElipse=false;
@@ -407,6 +429,7 @@ document.getElementById('dibujarCuadradoBtn').addEventListener('click', function
 document.getElementById('dibujarElipseBtn').addEventListener('click', function() {
     dibujandoLinea = false;
     escribir=false;
+    rotar=false;
     dibujandoCirculo = false; //  no se dibuje un círculo
     dibujandoCuadrado=false;
     dibujandoElipse=true;
@@ -422,6 +445,7 @@ document.getElementById('dibujarElipseBtn').addEventListener('click', function()
 document.getElementById('dibujarPoligonoBtn').addEventListener('click', function() {
     dibujandoCirculo = false;
     escribir=false;
+    rotar=false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
     dibujandoTrapecio=false;
@@ -438,6 +462,7 @@ document.getElementById('dibujarPoligonoBtn').addEventListener('click', function
 document.getElementById('dibujarRectanguloBtn').addEventListener('click', function() {
     dibujandoCirculo = false;
     escribir=false;
+    rotar=false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
     dibujandoElipse=false;
@@ -495,6 +520,7 @@ canvas.addEventListener("mousemove", function(event) {
     
         drawPixel(endX,endY, color,size); 
         anguloRotacion = 0;
+        rotar=false;
     }
 });
 
@@ -513,7 +539,7 @@ canvas.addEventListener('mouseup', function(event) {
         
     //  dibujarLinea(startX,startY,endX,endY);
         const radius = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2) / 2;
-        dibujarCirculo(centerX,centerY,radius,color,size,anguloRotacion);
+        dibujarCirculo(centerX,centerY,radius,color,size);
       //METER AL VECTOR
         let circulo = {
             tipo: 'circulo',
@@ -521,7 +547,7 @@ canvas.addEventListener('mouseup', function(event) {
             centerY: centerY,
             radius: radius,
             color:color,
-            color:color
+            size:size
         };
         figurasDibujadas.push(circulo);
  
@@ -536,6 +562,7 @@ canvas.addEventListener('mouseup', function(event) {
             endX: endX,
             endY: endY,
             color:color,
+            size:size,
             anguloRotacion:anguloRotacion
         };
         figurasDibujadas.push(linea);
@@ -549,6 +576,7 @@ canvas.addEventListener('mouseup', function(event) {
             startY: startY,
             lado: lado,
             color: color,
+            size:size,
             anguloRotacion:anguloRotacion
         };
         figurasDibujadas.push(cuadrado);
@@ -571,6 +599,7 @@ canvas.addEventListener('mouseup', function(event) {
             radiusX: radiusX,
             radiusY: radiusY,
             color:color,
+            size:size,
             anguloRotacion:anguloRotacion
         };
         figurasDibujadas.push(elipse);
@@ -588,6 +617,7 @@ canvas.addEventListener('mouseup', function(event) {
             lado_d: lado_d,
             angulo: angulo,
             color:color,
+            size:size,
             anguloRotacion:anguloRotacion
         };
         figurasDibujadas.push(poligono);
@@ -604,6 +634,7 @@ canvas.addEventListener('mouseup', function(event) {
            width: width,
            height: height,
            color:color,
+           size:size,
            anguloRotacion:anguloRotacion
        };
        figurasDibujadas.push(rectangulo);
@@ -666,37 +697,72 @@ function pedirLadosPoligono() {
  
 }
 
-function dibujarPoligono2(radio,centerX,centerY,ladosPoligono,angulo,color,size,anguloRotacion) {
-        console.log(ladosPoligono);
-        var angulo_inicial=(2*Math.PI)/ladosPoligono,lastX=0,lastY=0;
-        for(let i=0;i<ladosPoligono;i++){
-            let step=i*angulo_inicial+angulo;
-            let point=grados(centerX,centerY,radio,step);
-            if(i>0){
-                dibujarLineaDDA(point.x,point.y,lastX,lastY,color,size,anguloRotacion);
-            }
-            lastX=point.x;
-            lastY=point.y;
+function dibujarPoligono2(radio, centerX, centerY, ladosPoligono, angulo, color, size, anguloRotacion) {
+    const anguloInicial = (2 * Math.PI) / ladosPoligono;
+    let lastX = 0;
+    let lastY = 0;
+    rotar=false;
+    // Calcular el centro del polígono
+    const centroX = centerX;
+    const centroY = centerY;
+
+    for (let i = 0; i < ladosPoligono; i++) {
+        const step = i * anguloInicial + angulo;
+        const point = grados(centroX, centroY, radio, step, anguloRotacion);
+        if (i > 0) {
+            rotar=false;
+            dibujarLineaDDA(point.x, point.y, lastX, lastY, color, size, anguloRotacion);
         }
-        dibujarLineaDDA(lastX,lastY,Math.round(centerX+radio*Math.cos(angulo)),Math.round(centerY+radio*Math.sin(angulo)),color,size,anguloRotacion)
-}
-function grados(centerX,centerY,radio,step){
-    let pointX=Math.round(centerX+radio*Math.cos(step));
-    let pointY=Math.round(centerY+radio*Math.sin(step));
-    return{x:pointX,y:pointY}
-}
-
-function dibujarElipse(centerX, centerY, radiusX, radiusY,color,size) {
-   
-    for (let angle = 0; angle < Math.PI * 2; angle += 0.01) {
-        const x = Math.round(centerX + Math.cos(angle) * radiusX);
-        const y = Math.round(centerY + Math.sin(angle) * radiusY);
-        drawPixel(x, y, color,size);
+        lastX = point.x;
+        lastY = point.y;
     }
-   
+  
+    dibujarLineaDDA(lastX, lastY, Math.round(centroX + radio * Math.cos(angulo + anguloRotacion)), Math.round(centroY + radio * Math.sin(angulo + anguloRotacion)), color, size, anguloRotacion);
 }
 
-function dibujarLineaDDA(x0, y0, x1, y1,color,size,anguloRotacion) {
+function grados(centerX, centerY, radio, step, anguloRotacion) {
+    const puntoX = centerX + radio * Math.cos(step + anguloRotacion);
+    const puntoY = centerY + radio * Math.sin(step + anguloRotacion);
+    return { x: puntoX, y: puntoY };
+}
+
+function dibujarElipse(centerX, centerY, radiusX, radiusY, color, size, anguloRotacion) {
+    for (let angle = 0; angle < Math.PI * 2; angle += 0.01) {
+        // Calcular las coordenadas sin rotación
+        let x = Math.round(centerX + Math.cos(angle) * radiusX);
+        let y = Math.round(centerY + Math.sin(angle) * radiusY);
+        
+        // Rotar las coordenadas si es necesario
+        if (anguloRotacion !== 0) {
+            const rotatedPoint = rotatePoint(x, y, centerX, centerY, anguloRotacion);
+            x = rotatedPoint.x;
+            y = rotatedPoint.y;
+        }
+        
+        // Dibujar el píxel en la posición rotada
+        drawPixel(x, y, color, size);
+    }
+}
+
+function dibujarLineaDDA(x0, y0, x1, y1, color, size, anguloRotacion) {
+    if (rotar) {
+        const centerX = (x0 + x1) / 2;
+        const centerY = (y0 + y1) / 2;
+        const rotatedStart = rotatePoint(x0, y0, centerX, centerY, anguloRotacion);
+        const rotatedEnd = rotatePoint(x1, y1, centerX, centerY, anguloRotacion);
+        x0 = rotatedStart.x;
+        y0 = rotatedStart.y;
+        x1 = rotatedEnd.x;
+        y1 = rotatedEnd.y;
+            // Dibujar la línea con los puntos calculados
+        contexto.beginPath();
+        contexto.moveTo(x0, y0);
+        contexto.lineTo(x1, y1);
+        contexto.strokeStyle = color;
+        contexto.lineWidth = size;
+        contexto.stroke();
+    }else{
+
     // diferencias en x y y
     let dx = x1 - x0;
     let dy = y1 - y0;
@@ -714,28 +780,57 @@ function dibujarLineaDDA(x0, y0, x1, y1,color,size,anguloRotacion) {
 
     // dibujar cada punto de la línea
     for (let i = 0; i <= steps; i++) {
-        drawPixel(Math.round(x), Math.round(y), color,size); // dibujar el píxel más cercano
+        drawPixel(Math.round(x), Math.round(y), color, size); // dibujar el píxel más cercano
         x += xIncrement;
         y += yIncrement;
     }
-}
-function dibujarCuadrado(x, y, lado,color,size,anguloRotacion) {
-    let x0 = x;
-    let y0 = y;
-    let x1 = x + lado;
-    let y1 = y;
-    let x2 = x + lado;
-    let y2 = y + lado;
-    let x3 = x;
-    let y3 = y + lado;
+    }
 
-    dibujarLineaDDA(x0, y0, x1, y1,color,size,anguloRotacion); // Lado superior
-    dibujarLineaDDA(x1, y1, x2, y2,color,size,anguloRotacion); // Lado derecho
-    dibujarLineaDDA(x2, y2, x3, y3,color,size,anguloRotacion); // Lado inferior
-    dibujarLineaDDA(x3, y3, x0, y0,color,size,anguloRotacion); // Lado izquierdo
-
+  
 
 }
+
+function dibujarCuadrado(x, y, lado, color, size, anguloRotacion) {
+    // Calcular el centro del cuadrado
+    const centerX = x + lado / 2;
+    const centerY = y + lado / 2;
+
+    // Calcular las coordenadas de los vértices del cuadrado sin rotación
+    const x0 = x;
+    const y0 = y;
+    const x1 = x + lado;
+    const y1 = y;
+    const x2 = x + lado;
+    const y2 = y + lado;
+    const x3 = x;
+    const y3 = y + lado;
+
+    // Rotar cada vértice del cuadrado
+    const rotatedX0Y0 = rotatePoint(x0, y0, centerX, centerY, anguloRotacion);
+    const rotatedX1Y1 = rotatePoint(x1, y1, centerX, centerY, anguloRotacion);
+    const rotatedX2Y2 = rotatePoint(x2, y2, centerX, centerY, anguloRotacion);
+    const rotatedX3Y3 = rotatePoint(x3, y3, centerX, centerY, anguloRotacion);
+if(rotar){
+    contexto.beginPath();
+    contexto.moveTo(rotatedX0Y0.x, rotatedX0Y0.y);
+    contexto.lineTo(rotatedX1Y1.x, rotatedX1Y1.y);
+    contexto.lineTo(rotatedX2Y2.x, rotatedX2Y2.y);
+    contexto.lineTo(rotatedX3Y3.x, rotatedX3Y3.y);
+    contexto.closePath();
+    contexto.strokeStyle = color;
+    contexto.lineWidth = size;
+    contexto.stroke();
+}else{
+
+    // Dibujar el cuadrado
+    dibujarLineaDDA(rotatedX0Y0.x, rotatedX0Y0.y, rotatedX1Y1.x, rotatedX1Y1.y, color, size);
+    dibujarLineaDDA(rotatedX1Y1.x, rotatedX1Y1.y, rotatedX2Y2.x, rotatedX2Y2.y, color, size);
+    dibujarLineaDDA(rotatedX2Y2.x, rotatedX2Y2.y, rotatedX3Y3.x, rotatedX3Y3.y, color, size);
+    dibujarLineaDDA(rotatedX3Y3.x, rotatedX3Y3.y, rotatedX0Y0.x, rotatedX0Y0.y, color, size);
+}
+}
+
+
 
 
 
@@ -804,22 +899,46 @@ function dibujarCuadrado(x, y, lado,color,size,anguloRotacion) {
     }
 }
 
+function dibujarRectangulo(x, y, width, height, color, size, anguloRotacion) {
+    // Calcular las coordenadas de los vértices del rectángulo sin rotación
+    const x0 = x;
+    const y0 = y;
+    const x1 = x + width;
+    const y1 = y;
+    const x2 = x + width;
+    const y2 = y + height;
+    const x3 = x;
+    const y3 = y + height;
 
-function dibujarRectangulo(x, y, width, height, color,size,anguloRotacion) {
-    let x0 = x;
-    let y0 = y;
-    let x1 = x + width;
-    let y1 = y;
-    let x2 = x + width;
-    let y2 = y + height;
-    let x3 = x;
-    let y3 = y + height;
+    // Rotar los vértices del rectángulo si es necesario
+    if (rotar) {
+        const centerX = (x0 + x1 + x2 + x3) / 4;
+        const centerY = (y0 + y1 + y2 + y3) / 4;
 
-    dibujarLineaDDA(x0, y0, x1, y1, color,size,anguloRotacion); // Lado superior
-    dibujarLineaDDA(x1, y1, x2, y2, color,size,anguloRotacion); // Lado derecho
-    dibujarLineaDDA(x2, y2, x3, y3, color,size,anguloRotacion); // Lado inferior
-    dibujarLineaDDA(x3, y3, x0, y0, color,size,anguloRotacion); // Lado izquierdo
+        const rotatedX0Y0 = rotatePoint(x0, y0, centerX, centerY, anguloRotacion);
+        const rotatedX1Y1 = rotatePoint(x1, y1, centerX, centerY, anguloRotacion);
+        const rotatedX2Y2 = rotatePoint(x2, y2, centerX, centerY, anguloRotacion);
+        const rotatedX3Y3 = rotatePoint(x3, y3, centerX, centerY, anguloRotacion);
+
+        // Dibujar el rectángulo rotado
+        contexto.beginPath();
+        contexto.moveTo(rotatedX0Y0.x, rotatedX0Y0.y);
+        contexto.lineTo(rotatedX1Y1.x, rotatedX1Y1.y);
+        contexto.lineTo(rotatedX2Y2.x, rotatedX2Y2.y);
+        contexto.lineTo(rotatedX3Y3.x, rotatedX3Y3.y);
+        contexto.closePath();
+        contexto.strokeStyle = color;
+        contexto.lineWidth = size;
+        contexto.stroke();
+    } else {
+        // Dibujar el rectángulo sin rotar
+        dibujarLineaDDA(x0, y0, x1, y1, color, size);
+        dibujarLineaDDA(x1, y1, x2, y2, color, size);
+        dibujarLineaDDA(x2, y2, x3, y3, color, size);
+        dibujarLineaDDA(x3, y3, x0, y0, color, size);
+    }
 }
+
 
 
 function drawPixel(x, y, color, size) {
@@ -867,6 +986,7 @@ function drawPixel(x, y, color, size) {
 document.getElementById('borraBtn').addEventListener('click', function() {
     // Establecer la bandera para el modo borrador
     anguloRotacion = 0;
+    rotar=false;
     flag_borrador = true;
     dibujarBtn=false;
     // Desactivar el dibujo de todas las figuras
