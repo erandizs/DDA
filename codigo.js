@@ -554,7 +554,7 @@ canvas.addEventListener('mouseup', function(event) {
       //  dibujarFiguras(figurasDibujadas);
      
     }else if(dibujandoLinea){
-        dibujarLineaDDA(startX,startY,endX,endY,color,size,anguloRotacion);
+        dibujarLineaDDARotar(startX,startY,endX,endY,color,size,anguloRotacion);
         let linea = {
             tipo: 'linea',
             startX: startX,
@@ -745,23 +745,7 @@ function dibujarElipse(centerX, centerY, radiusX, radiusY, color, size, anguloRo
 }
 
 function dibujarLineaDDA(x0, y0, x1, y1, color, size, anguloRotacion) {
-    if (rotar) {
-        const centerX = (x0 + x1) / 2;
-        const centerY = (y0 + y1) / 2;
-        const rotatedStart = rotatePoint(x0, y0, centerX, centerY, anguloRotacion);
-        const rotatedEnd = rotatePoint(x1, y1, centerX, centerY, anguloRotacion);
-        x0 = rotatedStart.x;
-        y0 = rotatedStart.y;
-        x1 = rotatedEnd.x;
-        y1 = rotatedEnd.y;
-            // Dibujar la línea con los puntos calculados
-        contexto.beginPath();
-        contexto.moveTo(x0, y0);
-        contexto.lineTo(x1, y1);
-        contexto.strokeStyle = color;
-        contexto.lineWidth = size;
-        contexto.stroke();
-    }else{
+   
 
     // diferencias en x y y
     let dx = x1 - x0;
@@ -784,55 +768,92 @@ function dibujarLineaDDA(x0, y0, x1, y1, color, size, anguloRotacion) {
         x += xIncrement;
         y += yIncrement;
     }
-    }
-
-  
+    
 
 }
+function dibujarLineaDDARotar(x0, y0, x1, y1, color, size, anguloRotacion) {
+    const centerX = (x0 + x1) / 2;
+    const centerY = (y0 + y1) / 2;
+    
+    // Rotar los puntos inicial y final de la línea
+    const rotatedStart = rotatePoint(x0, y0, centerX, centerY, anguloRotacion);
+    const rotatedEnd = rotatePoint(x1, y1, centerX, centerY, anguloRotacion);
+    
+    x0 = rotatedStart.x;
+    y0 = rotatedStart.y;
+    x1 = rotatedEnd.x;
+    y1 = rotatedEnd.y;
 
-function dibujarCuadrado(x, y, lado, color, size, anguloRotacion) {
-    // Calcular el centro del cuadrado
-    const centerX = x + lado / 2;
-    const centerY = y + lado / 2;
+    // Diferencias en x y y
+    let dx = x1 - x0;
+    let dy = y1 - y0;
 
-    // Calcular las coordenadas de los vértices del cuadrado sin rotación
-    const x0 = x;
-    const y0 = y;
-    const x1 = x + lado;
-    const y1 = y;
-    const x2 = x + lado;
-    const y2 = y + lado;
-    const x3 = x;
-    const y3 = y + lado;
+    // Longitud de la línea
+    let steps = Math.max(Math.abs(dx), Math.abs(dy));
 
-    // Rotar cada vértice del cuadrado
+    // Incrementos para cada paso
+    let xIncrement = dx / steps;
+    let yIncrement = dy / steps;
+
+    // Valores iniciales
+    let x = x0;
+    let y = y0;
+
+    // Dibujar cada punto de la línea
+    for (let i = 0; i <= steps; i++) {
+        drawPixel(Math.round(x), Math.round(y), color, size); // Dibujar el píxel más cercano
+        x += xIncrement;
+        y += yIncrement;
+    }
+}
+
+
+function dibujarCuadrado(centerX, centerY, sideLength, color, size, anguloRotacion) {
+    const halfLength = sideLength / 2;
+
+    // Calcular los vértices del cuadrado sin rotación
+    const vertices = [
+        [centerX - halfLength, centerY - halfLength], // Punto superior izquierdo (A)
+        [centerX + halfLength, centerY - halfLength], // Punto superior derecho (B)
+        [centerX + halfLength, centerY + halfLength], // Punto inferior derecho (C)
+        [centerX - halfLength, centerY + halfLength]  // Punto inferior izquierdo (D)
+    ];
+
+    // Aplicar la rotación a cada vértice
+    const rotatedVertices = vertices.map(vertex => rotatePoint(vertex[0], vertex[1], centerX, centerY, anguloRotacion));
+
+    // Dibujar los lados del cuadrado usando las coordenadas de los vértices rotados
+    dibujarLineaDDA(rotatedVertices[0].x, rotatedVertices[0].y, rotatedVertices[1].x, rotatedVertices[1].y, color, size); // Lado superior
+    dibujarLineaDDA(rotatedVertices[1].x, rotatedVertices[1].y, rotatedVertices[2].x, rotatedVertices[2].y, color, size); // Lado derecho
+    dibujarLineaDDA(rotatedVertices[2].x, rotatedVertices[2].y, rotatedVertices[3].x, rotatedVertices[3].y, color, size); // Lado inferior
+    dibujarLineaDDA(rotatedVertices[3].x, rotatedVertices[3].y, rotatedVertices[0].x, rotatedVertices[0].y, color, size); // Lado izquierdo
+}
+
+
+
+function dibujarRectangulo(centerX, centerY, width, height, color, size, anguloRotacion) {
+    // Calcular las coordenadas de los vértices del rectángulo sin rotación
+    const x0 = centerX - width / 2;
+    const y0 = centerY - height / 2;
+    const x1 = centerX + width / 2;
+    const y1 = centerY - height / 2;
+    const x2 = centerX + width / 2;
+    const y2 = centerY + height / 2;
+    const x3 = centerX - width / 2;
+    const y3 = centerY + height / 2;
+
+    // Aplicar la rotación a cada vértice
     const rotatedX0Y0 = rotatePoint(x0, y0, centerX, centerY, anguloRotacion);
     const rotatedX1Y1 = rotatePoint(x1, y1, centerX, centerY, anguloRotacion);
     const rotatedX2Y2 = rotatePoint(x2, y2, centerX, centerY, anguloRotacion);
     const rotatedX3Y3 = rotatePoint(x3, y3, centerX, centerY, anguloRotacion);
-if(rotar){
-    contexto.beginPath();
-    contexto.moveTo(rotatedX0Y0.x, rotatedX0Y0.y);
-    contexto.lineTo(rotatedX1Y1.x, rotatedX1Y1.y);
-    contexto.lineTo(rotatedX2Y2.x, rotatedX2Y2.y);
-    contexto.lineTo(rotatedX3Y3.x, rotatedX3Y3.y);
-    contexto.closePath();
-    contexto.strokeStyle = color;
-    contexto.lineWidth = size;
-    contexto.stroke();
-}else{
 
-    // Dibujar el cuadrado
-    dibujarLineaDDA(rotatedX0Y0.x, rotatedX0Y0.y, rotatedX1Y1.x, rotatedX1Y1.y, color, size);
-    dibujarLineaDDA(rotatedX1Y1.x, rotatedX1Y1.y, rotatedX2Y2.x, rotatedX2Y2.y, color, size);
-    dibujarLineaDDA(rotatedX2Y2.x, rotatedX2Y2.y, rotatedX3Y3.x, rotatedX3Y3.y, color, size);
+    // Dibujar los lados del rectángulo usando las coordenadas de los vértices rotados
+    dibujarLineaDDA(rotatedX0Y0.x, rotatedX0Y0.y, rotatedX1Y1.x, rotatedX1Y1.y, color, size); // Lado superior
+    dibujarLineaDDA(rotatedX1Y1.x, rotatedX1Y1.y, rotatedX2Y2.x, rotatedX2Y2.y, color, size); // Lado derecho
+    dibujarLineaDDA(rotatedX2Y2.x, rotatedX2Y2.y, rotatedX3Y3.x, rotatedX3Y3.y, color, size); // Lado inferior
     dibujarLineaDDA(rotatedX3Y3.x, rotatedX3Y3.y, rotatedX0Y0.x, rotatedX0Y0.y, color, size);
 }
-}
-
-
-
-
 
   function dibujarCirculo(x0, y0, radius,color,size) {
       let x = radius;
@@ -873,7 +894,7 @@ if(rotar){
                 dibujarCirculo(figura.centerX, figura.centerY, figura.radius,figura.color,figura.size);
                 break;
             case 'linea':
-                dibujarLineaDDA(figura.startX, figura.startY, figura.endX, figura.endY,figura.color,figura.size,figura.anguloRotacion);
+                dibujarLineaDDARotar(figura.startX, figura.startY, figura.endX, figura.endY,figura.color,figura.size,figura.anguloRotacion);
                 break;
             case 'elipse':
                 dibujarElipse(figura.centerX, figura.centerY, figura.radiusX, figura.radiusY,figura.color,figura.size,figura.anguloRotacion);
@@ -898,45 +919,29 @@ if(rotar){
         }
     }
 }
+function dibujarCuadrado(centerX, centerY, sideLength, color, size, anguloRotacion) {
+    // Calcular las coordenadas de los vértices del cuadrado sin rotación
+    const halfLength = sideLength / 2;
+    const x0 = centerX - halfLength;
+    const y0 = centerY - halfLength;
+    const x1 = centerX + halfLength;
+    const y1 = centerY - halfLength;
+    const x2 = centerX + halfLength;
+    const y2 = centerY + halfLength;
+    const x3 = centerX - halfLength;
+    const y3 = centerY + halfLength;
 
-function dibujarRectangulo(x, y, width, height, color, size, anguloRotacion) {
-    // Calcular las coordenadas de los vértices del rectángulo sin rotación
-    const x0 = x;
-    const y0 = y;
-    const x1 = x + width;
-    const y1 = y;
-    const x2 = x + width;
-    const y2 = y + height;
-    const x3 = x;
-    const y3 = y + height;
+    // Aplicar la rotación a cada vértice
+    const rotatedX0Y0 = rotatePoint(x0, y0, centerX, centerY, anguloRotacion);
+    const rotatedX1Y1 = rotatePoint(x1, y1, centerX, centerY, anguloRotacion);
+    const rotatedX2Y2 = rotatePoint(x2, y2, centerX, centerY, anguloRotacion);
+    const rotatedX3Y3 = rotatePoint(x3, y3, centerX, centerY, anguloRotacion);
 
-    // Rotar los vértices del rectángulo si es necesario
-    if (rotar) {
-        const centerX = (x0 + x1 + x2 + x3) / 4;
-        const centerY = (y0 + y1 + y2 + y3) / 4;
-
-        const rotatedX0Y0 = rotatePoint(x0, y0, centerX, centerY, anguloRotacion);
-        const rotatedX1Y1 = rotatePoint(x1, y1, centerX, centerY, anguloRotacion);
-        const rotatedX2Y2 = rotatePoint(x2, y2, centerX, centerY, anguloRotacion);
-        const rotatedX3Y3 = rotatePoint(x3, y3, centerX, centerY, anguloRotacion);
-
-        // Dibujar el rectángulo rotado
-        contexto.beginPath();
-        contexto.moveTo(rotatedX0Y0.x, rotatedX0Y0.y);
-        contexto.lineTo(rotatedX1Y1.x, rotatedX1Y1.y);
-        contexto.lineTo(rotatedX2Y2.x, rotatedX2Y2.y);
-        contexto.lineTo(rotatedX3Y3.x, rotatedX3Y3.y);
-        contexto.closePath();
-        contexto.strokeStyle = color;
-        contexto.lineWidth = size;
-        contexto.stroke();
-    } else {
-        // Dibujar el rectángulo sin rotar
-        dibujarLineaDDA(x0, y0, x1, y1, color, size);
-        dibujarLineaDDA(x1, y1, x2, y2, color, size);
-        dibujarLineaDDA(x2, y2, x3, y3, color, size);
-        dibujarLineaDDA(x3, y3, x0, y0, color, size);
-    }
+    // Dibujar los lados del cuadrado usando las coordenadas de los vértices rotados
+    dibujarLineaDDA(rotatedX0Y0.x, rotatedX0Y0.y, rotatedX1Y1.x, rotatedX1Y1.y, color, size); // Lado superior
+    dibujarLineaDDA(rotatedX1Y1.x, rotatedX1Y1.y, rotatedX2Y2.x, rotatedX2Y2.y, color, size); // Lado derecho
+    dibujarLineaDDA(rotatedX2Y2.x, rotatedX2Y2.y, rotatedX3Y3.x, rotatedX3Y3.y, color, size); // Lado inferior
+    dibujarLineaDDA(rotatedX3Y3.x, rotatedX3Y3.y, rotatedX0Y0.x, rotatedX0Y0.y, color, size); // Lado izquierdo
 }
 
 
