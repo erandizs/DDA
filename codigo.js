@@ -210,12 +210,41 @@ document.addEventListener('keydown', function(event) {
 });
 
 canvas.addEventListener('click', function(event) {
-    const rect = canvas.getBoundingClientRect();
-    const startX = event.clientX - rect.left;
-    const startY = event.clientY - rect.top;
-    seleccionarFigura(startX,startY);
-
+    if(resizing){
+        startX = event.offsetX; // x relativo al canvas
+        startY = event.offsetY;
+        seleccionarFigura(startX,startY);
+        console.log(figuraSeleccionada);
+    }else if(escribir){
+        const x = event.offsetX;
+        const y = event.offsetY;
+        
+        const texto = prompt('Ingresa el texto:');
+        if (texto) {
+            dibujarTexto(texto, x, y, '20px Arial', 'black'); 
+            let abc = {
+                tipo: 'texto',
+                texto:texto,
+                x:x,
+                y:y,
+                font: '20px Arial', 
+                fillStyle: 'black'
+            };
+            figurasDibujadas.push(abc);
+          
+        }
+    }else{
+        const rect = canvas.getBoundingClientRect();
+        let startX = event.clientX - rect.left;
+        let startY = event.clientY - rect.top;
+        seleccionarFigura(startX,startY);
+    }
 });
+function dibujarTexto(texto, x, y, font, fillStyle) {
+    contexto.font = font; // Establecer la fuente del texto
+    contexto.fillStyle = fillStyle; // Establecer el color del texto
+    contexto.fillText(texto, x, y); // Dibujar el texto en la posición (x, y)
+}
 function seleccionarFigura(x, y) {
     // Iterar sobre las figuras dibujadas
     for (let i = figurasDibujadas.length - 1; i >= 0; i--) {
@@ -236,7 +265,7 @@ function seleccionarFigura(x, y) {
                 break;
             case 'cuadrado':
                 if (puntoDentroDeCuadrado(x, y, figura.startX, figura.startY, figura.lado,figura.anguloRotacion)) {
-                    figuraSeleccionada = figura;
+                    figuraSeleccionada = figura;                    
                     return;
                 }
                 break;
@@ -273,6 +302,7 @@ function seleccionarFigura(x, y) {
             
         }
     }
+  
     // Si no se seleccionó ninguna figura, establecer la figura seleccionada como null
     figuraSeleccionada = null;
 }
@@ -303,16 +333,20 @@ document.getElementById('inputArchivo').addEventListener('click', function() {
     anguloRotacion = 0;
     rotar=false;
 });
+const toPNG = document.getElementById('toPNG');
+const toJPG = document.getElementById('toJPG');
 document.getElementById('exportarBtn').addEventListener('click', function() {
     anguloRotacion = 0;
     rotar=false;
-    const opcion = prompt("¿Desea exportar como PNG o como PDF? (Ingrese 'png' o 'pdf')");
+    const opcion = prompt("¿Desea exportar como PNG o como PDF? (Ingrese 'png' o 'pdf' o 'jpg)");
 
     if (opcion === 'png') {
         exportarCanvas('png');
     } else if (opcion === 'pdf') {
         genPDF();
-    } else {
+    } else if(opcion=='jpg'){
+        exportarCanvas('jpg');
+    }else {
         console.error('Formato de exportación no válido');
     }
 });
@@ -606,7 +640,8 @@ document.getElementById('dibujarLineaBtn').addEventListener('click', function() 
     dibujandoTrapecio=false;
     flag_borrador=false;
     dibujandoRectangulo=false;
-    dibujando=false;
+   
+    dibujarBtn=false;
     flag=0;
     anguloRotacion = 0;
 });
@@ -685,29 +720,33 @@ document.getElementById('dibujarRectanguloBtn').addEventListener('click', functi
 });
 // agarrar las coordenadas del mouse cuqando hace clic
 canvas.addEventListener('mousedown', function(event) {
-    isDrawing = true;
-    if(dibujandoCirculo || dibujandoLinea || dibujandoCuadrado || dibujandoElipse||dibujandoRectangulo||dibujandoTrapecio||dibujandoRombo){
-        startX = event.offsetX; // x relativo al canvas
-        startY = event.offsetY; // y relativo al canvas
-    }
-    if(dibujandoPoligono){
-        startX = event.clientX - canvas.getBoundingClientRect().left; // x
-        startY = event.clientY - canvas.getBoundingClientRect().top;  // y
+ 
+        isDrawing = true;
+   
+        if(dibujandoCirculo || dibujandoLinea || dibujandoCuadrado || dibujandoElipse||dibujandoRectangulo||dibujandoTrapecio||dibujandoRombo){
+            startX = event.offsetX; // x relativo al canvas
+            startY = event.offsetY; // y relativo al canvas
+        }
+        if(dibujandoPoligono){
+            startX = event.clientX - canvas.getBoundingClientRect().left; // x
+            startY = event.clientY - canvas.getBoundingClientRect().top;  // y
+          
+           // ladosPoligono++;
+        }
+       
+        const mouseX = event.clientX - canvas.getBoundingClientRect().left;
+        const mouseY = event.clientY - canvas.getBoundingClientRect().top;
+    
+        // Si no hay ninguna figura seleccionada, intenta seleccionar una
+        if (!figuraSeleccionada) {
+           // seleccionarFigura(mouseX, mouseY);
+        } else {
+            // Si ya hay una figura seleccionada, limpia la selección
+            figuraSeleccionada = null;
+        }
       
-       // ladosPoligono++;
-    }
-
-    const mouseX = event.clientX - canvas.getBoundingClientRect().left;
-    const mouseY = event.clientY - canvas.getBoundingClientRect().top;
-
-    // Si no hay ninguna figura seleccionada, intenta seleccionar una
-    if (!figuraSeleccionada) {
-       // seleccionarFigura(mouseX, mouseY);
-    } else {
-        // Si ya hay una figura seleccionada, limpia la selección
-        figuraSeleccionada = null;
-    }
-    //RESIZE DE TODAS LAS FIGURAS
+    
+   
    
     
 });
@@ -716,6 +755,9 @@ canvas.addEventListener("mousemove", function(event) {
     if (!isDrawing) return;
     endX = event.offsetX; // x relativo al canvas
     endY = event.offsetY; // y relativo al canvas
+    if(resizing){
+       
+    }
     if(flag_borrador){
         const rect = canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
@@ -731,6 +773,7 @@ canvas.addEventListener("mousemove", function(event) {
         anguloRotacion = 0;
         rotar=false;
     }
+  
 
    
 });
@@ -1183,10 +1226,13 @@ function dibujarCirculo(x0, y0, radius, color, size, traslacionX = 0, traslacion
             case 'trapecio':
                 dibujarTrapecio(figura.startX, figura.startY, figura.endX, figura.endY,figura.color,figura.size,figura.anguloRotacion,figura.traslacionX,figura.traslacionY);
                 break;
-            
+            case 'texto':
+               dibujarTexto(figura.texto, figura.x, figura.y, figura.font, figura.fillStyle)
+                break;            
         }
     }
 }
+
 function dibujarCuadrado(centerX, centerY, sideLength, color, size, anguloRotacion) {
     // Calcular las coordenadas de los vértices del cuadrado sin rotación
     const halfLength = sideLength / 2;
@@ -1380,15 +1426,26 @@ function puntoDentroDeRombo(x, y, centerX, centerY, width, height,anguloRotacion
 }
 
 function exportarCanvas(formato) {
-    // Obtener el contenido del canvas como una URL de datos
-    const dataURL = canvas.toDataURL('image/' + formato);
+    // Crear un canvas temporal para ajustar el tamaño del fondo blanco
+    const canvasTemporal = document.createElement('canvas');
+    const contextoTemporal = canvasTemporal.getContext('2d');
+    canvasTemporal.width = canvas.width;
+    canvasTemporal.height = canvas.height;
+
+    // Rellenar el canvas temporal con un fondo blanco del tamaño del canvas original
+    contextoTemporal.fillStyle = 'white'; // Color blanco
+    contextoTemporal.fillRect(0, 0, canvasTemporal.width, canvasTemporal.height);
+
+    // Dibujar la imagen del canvas original sobre el canvas temporal
+    contextoTemporal.drawImage(canvas, 0, 0);
+
+    // Obtener la URL de datos del canvas temporal
+    const dataURL = canvasTemporal.toDataURL('image/' + formato);
 
     // Crear un elemento <a> para descargar la imagen
     const enlaceDescarga = document.createElement('a');
     enlaceDescarga.href = dataURL;
-
-    // Establecer el nombre del archivo
-    enlaceDescarga.download = 'canvas_image.' + formato;
+    enlaceDescarga.download = 'canvas-image.' + formato;
 
     // Simular un clic en el enlace para iniciar la descarga
     document.body.appendChild(enlaceDescarga);
@@ -1397,6 +1454,7 @@ function exportarCanvas(formato) {
     // Limpiar el enlace y liberar recursos
     document.body.removeChild(enlaceDescarga);
 }
+
 function limpiar(){
     contexto.clearRect(0,0,canvas.width,canvas.height);
     figurasDibujadas.splice(0, figurasDibujadas.length); 
