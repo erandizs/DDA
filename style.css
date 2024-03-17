@@ -17,7 +17,6 @@ body{
   flex-direction: column;
   align-items: center;
 }
-
 .colores-contenedor {
   display: flex;
   flex-direction: row;
