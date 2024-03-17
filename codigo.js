@@ -1,7 +1,7 @@
 var canvas = document.getElementById('canvas');
 var contexto = canvas.getContext('2d');
 contexto.canvas.willReadFrequently = true;
-var rotar,escribir,dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo,dibujarBtn,dibujandoTrapecio,dibujandoRombo=false;
+var trasladar,rotar,escribir,dibujandoCirculo,dibujandoLinea,dibujandoCuadrado,dibujandoElipse,dibujandoPoligono,dibujandoRectangulo,dibujarBtn,dibujandoTrapecio,dibujandoRombo=false;
 // coordenadas del mouse
 let anguloRotacion = 0;
 var startX, startY, endX, endY;
@@ -16,9 +16,36 @@ let  history_Stack=[];
 let ladosPoligono=0;
 let flag=0;
 var isDrawing=false;
+var traslacionX=0;
+var traslacionY=0;
+// Variable para determinar si se está redimensionando
+let resizing = false;
+// Variables para almacenar la posición inicial del arrastre y el tamaño original del cuadrado
+let resizeStartX, resizeStartY, originalWidth, originalHeight;
 
+document.getElementById('resizeBtn').addEventListener('click', function() {
+    rotar=false;
+    resizing=true;
+    trasladar=false;
+    escribir=false;
+    anguloRotacion = 0;
+    dibujandoRombo=false;
+    dibujandoTrapecio=false;
+    dibujarBtn=false;
+    flag_borrador=false;
+     dibujandoCirculo = false;
+     dibujandoLinea = false; // no se dibuje una línea
+     dibujandoCuadrado=false;
+     dibujandoElipse=false;
+     dibujandoPoligono=false;
+     dibujandoRectangulo=false;
+     seleccionarFigura();
+  
+     
+ });
 document.getElementById('rotarBtn').addEventListener('click', function() {
    rotar=true;
+   trasladar=false;
    escribir=false;
    anguloRotacion = 0;
    dibujandoRombo=false;
@@ -32,27 +59,154 @@ document.getElementById('rotarBtn').addEventListener('click', function() {
     dibujandoPoligono=false;
     dibujandoRectangulo=false;
     seleccionarFigura();
-    document.addEventListener('keydown', function(event) {
-        // Verificar si una figura está seleccionada y si la tecla presionada es para rotar
-        if (figuraSeleccionada && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
-            // Determinar la dirección de rotación según la tecla presionada
-            const direccion = event.key === 'ArrowLeft' ? -1 : 1;
-            // Actualizar el ángulo de rotación
-            anguloRotacion += direccion * Math.PI / 18; // Cambia el ángulo según tu necesidad
-           
-            // Rotar la figura seleccionada
-            figuraSeleccionada.anguloRotacion = anguloRotacion;
-            
-            // Limpiar el lienzo
-            contexto.clearRect(0, 0, canvas.width, canvas.height);
-            // Redibujar todas las figuras con la nueva rotación
-            dibujarFiguras(figurasDibujadas);
-            
-            // También puedes redibujar solo la figura seleccionada
-            // dibujarFigura(figuraSeleccionada);
-        }
-    });
+ 
     
+});
+document.addEventListener('keydown', function(event) {
+    console.log(trasladar);
+    // Verificar si una figura está seleccionada y si la tecla presionada es para rotar
+    if (figuraSeleccionada && (event.key === 'ArrowLeft' || event.key === 'ArrowRight') && rotar) {
+        // Determinar la dirección de rotación según la tecla presionada
+        const direccion = event.key === 'ArrowLeft' ? -1 : 1;
+        // Actualizar el ángulo de rotación
+        anguloRotacion += direccion * Math.PI / 18; // Cambia el ángulo según tu necesidad
+       
+        // Rotar la figura seleccionada
+        figuraSeleccionada.anguloRotacion = anguloRotacion;
+        
+        // Limpiar el lienzo
+        contexto.clearRect(0, 0, canvas.width, canvas.height);
+        // Redibujar todas las figuras con la nueva rotación
+        dibujarFiguras(figurasDibujadas);
+        
+        // También puedes redibujar solo la figura seleccionada
+        // dibujarFigura(figuraSeleccionada);
+    }
+    //TRASLADAR
+  
+    if (figuraSeleccionada.tipo=='rombo' && trasladar) {
+        // Si la tecla presionada es la flecha izquierda
+        if (event.key === 'ArrowLeft') {
+            figuraSeleccionada.centerX -= 5;
+            traslacionX -= 5;
+        }
+        // Si la tecla presionada es la flecha derecha
+        else if (event.key === 'ArrowRight') {
+            figuraSeleccionada.centerX += 5;
+            traslacionX += 5;
+        }
+        // Si la tecla presionada es la flecha arriba
+        else if (event.key === 'ArrowUp') {
+            figuraSeleccionada.centerY -= 5;
+            traslacionY -= 5;
+        }
+        // Si la tecla presionada es la flecha abajo
+        else if (event.key === 'ArrowDown') {
+            figuraSeleccionada.centerY += 5;
+            traslacionY += 5;
+        }
+
+        // Limpiar el lienzo
+        contexto.clearRect(0, 0, canvas.width, canvas.height);
+        // Redibujar todas las figuras con la nueva traslación
+        dibujarFiguras(figurasDibujadas);
+    }else if (figuraSeleccionada.tipo == 'circulo' && trasladar) {
+        // Si la tecla presionada es la flecha izquierda
+        if (event.key === 'ArrowLeft') {
+            figuraSeleccionada.centerX -= 5;
+            traslacionX -= 5;
+        }
+        // Si la tecla presionada es la flecha derecha
+        else if (event.key === 'ArrowRight') {
+            figuraSeleccionada.centerX += 5;
+            traslacionX += 5;
+        }
+        // Si la tecla presionada es la flecha arriba
+        else if (event.key === 'ArrowUp') {
+            figuraSeleccionada.centerY -= 5;
+            traslacionY -= 5;
+        }
+        // Si la tecla presionada es la flecha abajo
+        else if (event.key === 'ArrowDown') {
+            figuraSeleccionada.centerY += 5;
+            traslacionY += 5;
+        }
+
+        // Limpiar el lienzo
+        contexto.clearRect(0, 0, canvas.width, canvas.height);
+        // Redibujar todas las figuras con la nueva traslación
+        dibujarFiguras(figurasDibujadas);
+    }else if(figuraSeleccionada.tipo == 'elipse' && trasladar){
+ // Si la tecla presionada es la flecha izquierda
+        if (event.key === 'ArrowLeft') {
+            figuraSeleccionada.centerX -= 5;
+            traslacionX -= 5;
+        }
+        // Si la tecla presionada es la flecha derecha
+        else if (event.key === 'ArrowRight') {
+            figuraSeleccionada.centerX += 5;
+            traslacionX += 5;
+        }
+        // Si la tecla presionada es la flecha arriba
+        else if (event.key === 'ArrowUp') {
+            figuraSeleccionada.centerY -= 5;
+            traslacionY -= 5;
+        }
+        // Si la tecla presionada es la flecha abajo
+        else if (event.key === 'ArrowDown') {
+            figuraSeleccionada.centerY += 5;
+            traslacionY += 5;
+        }
+
+        // Limpiar el lienzo
+        contexto.clearRect(0, 0, canvas.width, canvas.height);
+        // Redibujar todas las figuras con la nueva traslación
+        dibujarFiguras(figurasDibujadas);
+    }else{
+        if (event.key === 'ArrowLeft' && trasladar) {
+            if (figuraSeleccionada) {
+                figuraSeleccionada.startX -= 1;
+                figuraSeleccionada.endX -= 1;
+                traslacionX-=5;
+                contexto.clearRect(0, 0, canvas.width, canvas.height);
+                // Redibujar todas las figuras con la nueva rotación
+                dibujarFiguras(figurasDibujadas);
+            }
+        }
+        // Si la tecla presionada es la flecha derecha
+        else if (event.key === 'ArrowRight' && trasladar) {
+            if (figuraSeleccionada) {
+                figuraSeleccionada.startX += 1;
+                figuraSeleccionada.endX += 1;
+                traslacionX+=5;
+                contexto.clearRect(0, 0, canvas.width, canvas.height);
+                // Redibujar todas las figuras con la nueva rotación
+                dibujarFiguras(figurasDibujadas);
+            }
+        }
+        // Si la tecla presionada es la flecha arriba
+        else if (event.key === 'ArrowUp' && trasladar) {
+            if (figuraSeleccionada) {
+                figuraSeleccionada.startY -= 1;
+                figuraSeleccionada.endY -= 1;
+                traslacionY-=5;
+                contexto.clearRect(0, 0, canvas.width, canvas.height);
+                // Redibujar todas las figuras con la nueva rotación
+                dibujarFiguras(figurasDibujadas);
+            }
+        }
+        // Si la tecla presionada es la flecha abajo
+        else if (event.key === 'ArrowDown' && trasladar) {
+            if (figuraSeleccionada) {
+                figuraSeleccionada.startY += 1;
+                figuraSeleccionada.endY += 1;
+                traslacionY+=5;
+                contexto.clearRect(0, 0, canvas.width, canvas.height);
+                // Redibujar todas las figuras con la nueva rotación
+                dibujarFiguras(figurasDibujadas);
+            }
+        }
+    }
 });
 
 canvas.addEventListener('click', function(event) {
@@ -60,6 +214,7 @@ canvas.addEventListener('click', function(event) {
     const startX = event.clientX - rect.left;
     const startY = event.clientY - rect.top;
     seleccionarFigura(startX,startY);
+
 });
 function seleccionarFigura(x, y) {
     // Iterar sobre las figuras dibujadas
@@ -121,6 +276,23 @@ function seleccionarFigura(x, y) {
     // Si no se seleccionó ninguna figura, establecer la figura seleccionada como null
     figuraSeleccionada = null;
 }
+document.getElementById('trasladarBtn').addEventListener('click', function() {
+
+    trasladar=true;
+    rotar=false;
+    escribir=false;
+    anguloRotacion = 0;
+    dibujandoRombo=false;
+    dibujandoTrapecio=false;
+    dibujarBtn=false;
+    flag_borrador=false;
+     dibujandoCirculo = false;
+     dibujandoLinea = false; // no se dibuje una línea
+     dibujandoCuadrado=false;
+     dibujandoElipse=false;
+     dibujandoPoligono=false;
+     dibujandoRectangulo=false;
+});
 document.getElementById('guardarComoBtn').addEventListener('click', function() {
     guardarEnJSON();
     anguloRotacion = 0;
@@ -139,7 +311,7 @@ document.getElementById('exportarBtn').addEventListener('click', function() {
     if (opcion === 'png') {
         exportarCanvas('png');
     } else if (opcion === 'pdf') {
-        exportarComoPDF();
+        genPDF();
     } else {
         console.error('Formato de exportación no válido');
     }
@@ -153,13 +325,26 @@ function exportarComoPDF() {
     pdf.save('canvas_export.pdf');
 }
 
+function genPDF() {
+    var doc = new jsPDF({
+        orientation: "landscape",
+        unit: 'mm',
+        format: [canvas.clientWidth,canvas.clientHeight]
+    });
+    const dataURI= canvas.toDataURL({
+        type:'png',
+        quality:1
+    });
+    doc.addImage(dataURI,"PNG",0,0);
+    doc.save("Midocumento.pdf")
+}
 function preguntarFormatoExportacion() {
     const opcion = prompt("¿Desea exportar como PNG o como PDF? (Ingrese 'png' o 'pdf')");
 
     if (opcion === 'png') {
         exportarCanvas('png');
     } else if (opcion === 'pdf') {
-        exportarCanvas('pdf');
+        genPDF();
     } else {
         console.error('Formato de exportación no válido');
     }
@@ -168,9 +353,11 @@ function preguntarFormatoExportacion() {
 const opcionesBtn = document.getElementById('opcionesBtn');
 const opcionesContent = document.getElementById('opcionesContent');
 document.getElementById('escribirBtn').addEventListener('click', function() {
+    trasladar=false;
+    rotar=false;
     escribir=true;
     anguloRotacion = 0;
-    dibujandoRombo=true;
+    dibujandoRombo=false;
     dibujandoTrapecio=false;
     dibujarBtn=false;
     flag_borrador=false;
@@ -225,9 +412,11 @@ window.addEventListener('click', function(event) {
     }
 });
 document.getElementById('dibujarRomboBtn').addEventListener('click', function() {
+    trasladar=false;
+    rotar=false;
     dibujandoRombo=true;
     escribir=false;
-    rotar=false;
+
     dibujandoTrapecio=false;
     dibujarBtn=false;
     flag_borrador=false;
@@ -241,12 +430,14 @@ document.getElementById('dibujarRomboBtn').addEventListener('click', function() 
  });
  // Función para dibujar un rombo en el lienzo
 
- 
-
- function dibujarRombo(centerX, centerY, width, height, color, size, anguloRotacion) {
+ function dibujarRombo(centerX, centerY, width, height, color, size, anguloRotacion, traslacionX, traslacionY) {
     // Definir los puntos que conforman los vértices del rombo
     const halfWidth = width / 2;
     const halfHeight = height / 2;
+ 
+    // Aplicar la traslación al centro del rombo
+    centerX += traslacionX;
+    centerY += traslacionY;
 
     // Calcular los vértices del rombo sin rotación
     const vertices = [
@@ -266,10 +457,10 @@ document.getElementById('dibujarRomboBtn').addEventListener('click', function() 
         const rotatedX = deltaX * Math.cos(anguloRotacion) - deltaY * Math.sin(anguloRotacion);
         const rotatedY = deltaX * Math.sin(anguloRotacion) + deltaY * Math.cos(anguloRotacion);
 
-        // Calcular las coordenadas absolutas después de la rotación y devolverlas
+        // Calcular las coordenadas absolutas después de la rotación y traslación y devolverlas
         return [rotatedX + centerX, rotatedY + centerY];
     });
-    rotar=false;
+
     // Dibujar los lados del rombo usando las coordenadas de los vértices rotados
     dibujarLineaDDA(rotatedVertices[0][0], rotatedVertices[0][1], rotatedVertices[1][0], rotatedVertices[1][1], color, size); // Lado superior
     dibujarLineaDDA(rotatedVertices[1][0], rotatedVertices[1][1], rotatedVertices[2][0], rotatedVertices[2][1], color, size); // Lado derecho
@@ -278,8 +469,9 @@ document.getElementById('dibujarRomboBtn').addEventListener('click', function() 
 }
 
 
-
 document.getElementById('dibujarTrapecioBtn').addEventListener('click', function() {
+    trasladar=false;
+
     dibujandoTrapecio=true;
     rotar=false;
     dibujandoRombo=false;
@@ -293,11 +485,10 @@ document.getElementById('dibujarTrapecioBtn').addEventListener('click', function
      dibujandoRectangulo=false;
      anguloRotacion = 0;
  });
- 
- function dibujarTrapecio(startX, startY, endX, endY, color, size, anguloRotacion) {
-    // Calcular el centro del trapecio
-    const centerX = (startX + endX) / 2;
-    const centerY = (startY + endY) / 2;
+ function dibujarTrapecio(startX, startY, endX, endY, color, size, anguloRotacion, traslacionX, traslacionY) {
+    // Calcular el centro del trapecio con traslación
+    const centerX = (startX + endX) / 2 + traslacionX;
+    const centerY = (startY + endY) / 2 + traslacionY;
 
     // Calcular las dimensiones del trapecio
     const height = Math.abs(endY - startY);
@@ -318,12 +509,12 @@ document.getElementById('dibujarTrapecioBtn').addEventListener('click', function
     const bottomLeftX = centerX - halfBottomWidth;
     const bottomLeftY = centerY + halfHeight;
 
+    // Rotar las coordenadas de los vértices
     const rotatedTopLeft = rotatePoint(topLeftX, topLeftY, centerX, centerY, anguloRotacion);
     const rotatedTopRight = rotatePoint(topRightX, topRightY, centerX, centerY, anguloRotacion);
     const rotatedBottomRight = rotatePoint(bottomRightX, bottomRightY, centerX, centerY, anguloRotacion);
     const rotatedBottomLeft = rotatePoint(bottomLeftX, bottomLeftY, centerX, centerY, anguloRotacion);
-    console.log(anguloRotacion);
-    rotar=false;
+
     // Dibujar los lados del trapecio usando las coordenadas de los vértices rotados
     dibujarLineaDDA(rotatedTopLeft.x, rotatedTopLeft.y, rotatedTopRight.x, rotatedTopRight.y, color, size);
     dibujarLineaDDA(rotatedTopRight.x, rotatedTopRight.y, rotatedBottomRight.x, rotatedBottomRight.y, color, size);
@@ -345,23 +536,31 @@ function rotatePoint(x, y, centerX, centerY, angle) {
 document.getElementById('verdeBtn').addEventListener('click', function() {
    color=[0, 255, 0];
    rotar=false;
+   trasladar=false;
+
 });
 document.getElementById('rojoBtn').addEventListener('click', function() {
     color=[255, 0, 0];
     rotar=false;
+    trasladar=false;
+
  });
  document.getElementById('azulBtn').addEventListener('click', function() {
     color=[0, 0, 255];
     rotar=false;
+    trasladar=false;
+ 
  });
  document.getElementById('negroBtn').addEventListener('click', function() {
     color=[0, 0, 0];
+    trasladar=false;
     rotar=false;
  });
 
  document.getElementById('dibujarBtn').addEventListener('click', function() {
     dibujarBtn=true;
     escribir=false;
+    trasladar=false;
     rotar=false;
    flag_borrador=false;
     dibujandoCirculo = false;
@@ -378,7 +577,9 @@ document.getElementById('rojoBtn').addEventListener('click', function() {
 document.getElementById('dibujarCirculoBtn').addEventListener('click', function() {
     dibujandoCirculo = true;
     escribir=false;
+    trasladar=false;
     rotar=false;
+    resizing=false;
     dibujandoTrapecio=false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
@@ -395,6 +596,7 @@ document.getElementById('dibujarCirculoBtn').addEventListener('click', function(
 document.getElementById('dibujarLineaBtn').addEventListener('click', function() {
     dibujandoLinea = true;
     escribir=false;
+    trasladar=false;
     rotar=false;
     dibujandoCirculo = false; //  no se dibuje un círculo
     dibujandoCuadrado=false;
@@ -412,6 +614,7 @@ document.getElementById('dibujarLineaBtn').addEventListener('click', function() 
 document.getElementById('dibujarCuadradoBtn').addEventListener('click', function() {
     dibujandoLinea = false;
     escribir=false;
+    trasladar=false;
     rotar=false;
     dibujandoCirculo = false; //  no se dibuje un círculo
     dibujandoCuadrado=true;
@@ -429,6 +632,7 @@ document.getElementById('dibujarCuadradoBtn').addEventListener('click', function
 document.getElementById('dibujarElipseBtn').addEventListener('click', function() {
     dibujandoLinea = false;
     escribir=false;
+    trasladar=false;
     rotar=false;
     dibujandoCirculo = false; //  no se dibuje un círculo
     dibujandoCuadrado=false;
@@ -445,6 +649,7 @@ document.getElementById('dibujarElipseBtn').addEventListener('click', function()
 document.getElementById('dibujarPoligonoBtn').addEventListener('click', function() {
     dibujandoCirculo = false;
     escribir=false;
+    trasladar=false;
     rotar=false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
@@ -462,6 +667,7 @@ document.getElementById('dibujarPoligonoBtn').addEventListener('click', function
 document.getElementById('dibujarRectanguloBtn').addEventListener('click', function() {
     dibujandoCirculo = false;
     escribir=false;
+    trasladar=false;
     rotar=false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
@@ -501,6 +707,9 @@ canvas.addEventListener('mousedown', function(event) {
         // Si ya hay una figura seleccionada, limpia la selección
         figuraSeleccionada = null;
     }
+    //RESIZE DE TODAS LAS FIGURAS
+   
+    
 });
 
 canvas.addEventListener("mousemove", function(event) {
@@ -522,6 +731,8 @@ canvas.addEventListener("mousemove", function(event) {
         anguloRotacion = 0;
         rotar=false;
     }
+
+   
 });
 
 // cordenadas al soltar el mouse
@@ -530,31 +741,49 @@ canvas.addEventListener('mouseup', function(event) {
     endX = event.clientX - canvas.getBoundingClientRect().left; // x
     endY = event.clientY - canvas.getBoundingClientRect().top;   // y
 
+    // Calcular el cambio en las dimensiones del círculo (en este caso, solo el radio)
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    const newRadius = Math.sqrt(deltaX ** 2 + deltaY ** 2) / 2;
+
+    if (figuraSeleccionada && figuraSeleccionada.tipo === 'circulo' && resizing) {
+        // Actualizar el radio de la figura seleccionada con el nuevo radio calculado
+        figuraSeleccionada.radius = newRadius;
+
+        // Limpiar el lienzo
+        contexto.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Redibujar todas las figuras con las nuevas dimensiones
+        dibujarFiguras(figurasDibujadas);
+    }
+
   
     if(dibujandoCirculo){
-       
-        //calcular centro del circulo
-        const centerX = (startX + endX) / 2;
-        const centerY = (startY + endY) / 2;
-        
-    //  dibujarLinea(startX,startY,endX,endY);
+        // Calcular el centro del círculo con traslación
+        const centerX = (startX + endX) / 2 + traslacionX;
+        const centerY = (startY + endY) / 2 + traslacionY;
+            
+        // Calcular el radio del círculo
         const radius = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2) / 2;
-        dibujarCirculo(centerX,centerY,radius,color,size);
-      //METER AL VECTOR
+            
+        // Dibujar el círculo con traslación
+        dibujarCirculo(centerX, centerY, radius, color, size, traslacionX, traslacionY);
+        console.log("aiudaaaaaaaaaaaaaa");
+        // Agregar información del círculo al vector de figuras dibujadas
         let circulo = {
             tipo: 'circulo',
             centerX: centerX,
             centerY: centerY,
             radius: radius,
-            color:color,
-            size:size
+            color: color,
+            size: size,
+            traslacionX: traslacionX,
+            traslacionY: traslacionY
         };
         figurasDibujadas.push(circulo);
- 
-      //  dibujarFiguras(figurasDibujadas);
      
     }else if(dibujandoLinea){
-        dibujarLineaDDARotar(startX,startY,endX,endY,color,size,anguloRotacion);
+        dibujarLineaDDARotar(startX,startY,endX,endY,color,size,anguloRotacion,traslacionX,traslacionY);
         let linea = {
             tipo: 'linea',
             startX: startX,
@@ -563,7 +792,9 @@ canvas.addEventListener('mouseup', function(event) {
             endY: endY,
             color:color,
             size:size,
-            anguloRotacion:anguloRotacion
+            anguloRotacion:anguloRotacion,
+            traslacionX:traslacionX,
+            traslacionY:traslacionY
         };
         figurasDibujadas.push(linea);
       //  dibujarFiguras(figurasDibujadas);
@@ -591,7 +822,7 @@ canvas.addEventListener('mouseup', function(event) {
         let radiusY = Math.abs((endY - startY) / 2);
         
      
-        dibujarElipse(centerX, centerY, radiusX, radiusY,color,size,anguloRotacion);
+        dibujarElipse(centerX, centerY, radiusX, radiusY,color,size,anguloRotacion,traslacionX,traslacionY);
         let elipse = {
             tipo: 'elipse',
             centerX: centerX,
@@ -600,7 +831,9 @@ canvas.addEventListener('mouseup', function(event) {
             radiusY: radiusY,
             color:color,
             size:size,
-            anguloRotacion:anguloRotacion
+            anguloRotacion:anguloRotacion,
+            traslacionX:traslacionX,
+            traslacionY:traslacionY
         };
         figurasDibujadas.push(elipse);
       //  dibujarFiguras(figurasDibujadas);
@@ -608,7 +841,7 @@ canvas.addEventListener('mouseup', function(event) {
         let angulo = Math.atan2(endX-startX,endY-startY);
         let radio = Math.sqrt(Math.pow(endX-startX,2)+Math.pow(endY-startY,2));
         console.log(ladosPoligono);
-        dibujarPoligono2(radio,startX,startY,lado_d,angulo,color,size,anguloRotacion);
+        dibujarPoligono2(radio,startX,startY,lado_d,angulo,color,size,anguloRotacion,traslacionX,traslacionY);
         let poligono = {
             tipo: 'poligono',
             radio: radio,
@@ -618,7 +851,9 @@ canvas.addEventListener('mouseup', function(event) {
             angulo: angulo,
             color:color,
             size:size,
-            anguloRotacion:anguloRotacion
+            anguloRotacion:anguloRotacion,
+            traslacionX:traslacionX,
+            traslacionY:traslacionY
         };
         figurasDibujadas.push(poligono);
        // dibujarFiguras(figurasDibujadas);
@@ -640,7 +875,7 @@ canvas.addEventListener('mouseup', function(event) {
        figurasDibujadas.push(rectangulo);
       // dibujarFiguras(figurasDibujadas);
    }else if(dibujandoTrapecio){
-      dibujarTrapecio(startX, startY, endX, endY,color,size,anguloRotacion);
+      dibujarTrapecio(startX, startY, endX, endY,color,size,anguloRotacion,traslacionX,traslacionY);
       let trapecio = {
         tipo: 'trapecio',
         startX: startX,
@@ -649,7 +884,9 @@ canvas.addEventListener('mouseup', function(event) {
         endY:endY,
         color:color,
         size:size,
-        anguloRotacion:anguloRotacion
+        anguloRotacion:anguloRotacion,
+        traslacionX:traslacionX,
+        traslacionY:traslacionY
     };
     figurasDibujadas.push(trapecio);
    }if(dibujandoRombo){
@@ -662,7 +899,7 @@ canvas.addEventListener('mouseup', function(event) {
     let height = Math.abs(endY - startY);
 
      // Dibujar el rombo
-     dibujarRombo(centerX, centerY, width, height, color,size,anguloRotacion);
+     dibujarRombo(centerX, centerY, width, height, color,size,anguloRotacion,traslacionX,traslacionY);
 
      // Guardar la información del rombo en el arreglo de figuras dibujadas
      let rombo = {
@@ -673,7 +910,9 @@ canvas.addEventListener('mouseup', function(event) {
          height: height,
          color: color,
          size:size,
-         anguloRotacion:anguloRotacion
+         anguloRotacion:anguloRotacion,
+         traslacionX:traslacionX,
+         traslacionY:traslacionY
      };
      figurasDibujadas.push(rombo);
     
@@ -681,6 +920,9 @@ canvas.addEventListener('mouseup', function(event) {
 
      // Restablecer la bandera de dibujo
      isDrawing = false;
+
+     //RESIZE DE TODAS LAS FIGURAS
+    
 });
 let lado_d=0;
 function pedirLadosPoligono() {
@@ -697,20 +939,19 @@ function pedirLadosPoligono() {
  
 }
 
-function dibujarPoligono2(radio, centerX, centerY, ladosPoligono, angulo, color, size, anguloRotacion) {
+function dibujarPoligono2(radio, centerX, centerY, ladosPoligono, angulo, color, size, anguloRotacion, traslacionX, traslacionY) {
     const anguloInicial = (2 * Math.PI) / ladosPoligono;
     let lastX = 0;
     let lastY = 0;
-    rotar=false;
-    // Calcular el centro del polígono
-    const centroX = centerX;
-    const centroY = centerY;
+
+    // Calcular el centro del polígono con traslación
+    const centroX = centerX + traslacionX;
+    const centroY = centerY + traslacionY;
 
     for (let i = 0; i < ladosPoligono; i++) {
         const step = i * anguloInicial + angulo;
         const point = grados(centroX, centroY, radio, step, anguloRotacion);
         if (i > 0) {
-            rotar=false;
             dibujarLineaDDA(point.x, point.y, lastX, lastY, color, size, anguloRotacion);
         }
         lastX = point.x;
@@ -725,12 +966,17 @@ function grados(centerX, centerY, radio, step, anguloRotacion) {
     const puntoY = centerY + radio * Math.sin(step + anguloRotacion);
     return { x: puntoX, y: puntoY };
 }
-
-function dibujarElipse(centerX, centerY, radiusX, radiusY, color, size, anguloRotacion) {
+function dibujarElipse(centerX, centerY, radiusX, radiusY, color, size, anguloRotacion, traslacionX, traslacionY) {
     for (let angle = 0; angle < Math.PI * 2; angle += 0.01) {
-        // Calcular las coordenadas sin rotación
+        // Calcular las coordenadas sin traslación
         let x = Math.round(centerX + Math.cos(angle) * radiusX);
         let y = Math.round(centerY + Math.sin(angle) * radiusY);
+        
+        // Aplicar la traslación si es necesario
+        if (traslacionX !== 0 || traslacionY !== 0) {
+            x += traslacionX;
+            y += traslacionY;
+        }
         
         // Rotar las coordenadas si es necesario
         if (anguloRotacion !== 0) {
@@ -738,7 +984,7 @@ function dibujarElipse(centerX, centerY, radiusX, radiusY, color, size, anguloRo
             x = rotatedPoint.x;
             y = rotatedPoint.y;
         }
-        
+       
         // Dibujar el píxel en la posición rotada
         drawPixel(x, y, color, size);
     }
@@ -771,7 +1017,13 @@ function dibujarLineaDDA(x0, y0, x1, y1, color, size, anguloRotacion) {
     
 
 }
-function dibujarLineaDDARotar(x0, y0, x1, y1, color, size, anguloRotacion) {
+function dibujarLineaDDARotar(x0, y0, x1, y1, color, size, anguloRotacion, traslacionX, traslacionY) {
+    // Aplicar la traslación a los puntos inicial y final de la línea
+    x0 += traslacionX;
+    y0 += traslacionY;
+    x1 += traslacionX;
+    y1 += traslacionY;
+    console.log("linea");
     const centerX = (x0 + x1) / 2;
     const centerY = (y0 + y1) / 2;
     
@@ -807,8 +1059,7 @@ function dibujarLineaDDARotar(x0, y0, x1, y1, color, size, anguloRotacion) {
     }
 }
 
-
-function dibujarCuadrado(centerX, centerY, sideLength, color, size, anguloRotacion) {
+function dibujarCuadrado(centerX, centerY, sideLength, color, size, anguloRotacion, traslacionX, traslacionY) {
     const halfLength = sideLength / 2;
 
     // Calcular los vértices del cuadrado sin rotación
@@ -819,16 +1070,28 @@ function dibujarCuadrado(centerX, centerY, sideLength, color, size, anguloRotaci
         [centerX - halfLength, centerY + halfLength]  // Punto inferior izquierdo (D)
     ];
 
-    // Aplicar la rotación a cada vértice
-    const rotatedVertices = vertices.map(vertex => rotatePoint(vertex[0], vertex[1], centerX, centerY, anguloRotacion));
+    // Aplicar la rotación a cada vértice si no está en modo de traslación
+    let rotatedVertices = vertices;
+    if (!trasladar) {
+        rotatedVertices = vertices.map(vertex => rotatePoint(vertex[0], vertex[1], centerX, centerY, anguloRotacion));
+    } else {
+        anguloRotacion = 0; // Establecer el ángulo de rotación a cero cuando se traslada
+    }
 
-    // Dibujar los lados del cuadrado usando las coordenadas de los vértices rotados
-    dibujarLineaDDA(rotatedVertices[0].x, rotatedVertices[0].y, rotatedVertices[1].x, rotatedVertices[1].y, color, size); // Lado superior
-    dibujarLineaDDA(rotatedVertices[1].x, rotatedVertices[1].y, rotatedVertices[2].x, rotatedVertices[2].y, color, size); // Lado derecho
-    dibujarLineaDDA(rotatedVertices[2].x, rotatedVertices[2].y, rotatedVertices[3].x, rotatedVertices[3].y, color, size); // Lado inferior
-    dibujarLineaDDA(rotatedVertices[3].x, rotatedVertices[3].y, rotatedVertices[0].x, rotatedVertices[0].y, color, size); // Lado izquierdo
+    // Aplicar la traslación a cada vértice rotado si no está en modo de traslación
+    if (!trasladar) {
+        rotatedVertices = rotatedVertices.map(vertex => [vertex.x + traslacionX, vertex.y + traslacionY]);
+    }
+
+    // Dibujar los lados del cuadrado usando las coordenadas de los vértices trasladados
+    dibujarLineaDDA(rotatedVertices[0][0], rotatedVertices[0][1], rotatedVertices[1][0], rotatedVertices[1][1], color, size); // Lado superior
+    dibujarLineaDDA(rotatedVertices[1][0], rotatedVertices[1][1], rotatedVertices[2][0], rotatedVertices[2][1], color, size); // Lado derecho
+    dibujarLineaDDA(rotatedVertices[2][0], rotatedVertices[2][1], rotatedVertices[3][0], rotatedVertices[3][1], color, size); // Lado inferior
+    dibujarLineaDDA(rotatedVertices[3][0], rotatedVertices[3][1], rotatedVertices[0][0], rotatedVertices[0][1], color, size); // Lado izquierdo
+
+    // Llamar a la función para seleccionar la figura
+    seleccionarFigura(centerX, centerY);
 }
-
 
 
 function dibujarRectangulo(centerX, centerY, width, height, color, size, anguloRotacion) {
@@ -855,30 +1118,35 @@ function dibujarRectangulo(centerX, centerY, width, height, color, size, anguloR
     dibujarLineaDDA(rotatedX3Y3.x, rotatedX3Y3.y, rotatedX0Y0.x, rotatedX0Y0.y, color, size);
 }
 
-  function dibujarCirculo(x0, y0, radius,color,size) {
-      let x = radius;
-      let y = 0;
-      let err = 0;
+function dibujarCirculo(x0, y0, radius, color, size, traslacionX = 0, traslacionY = 0) {
+    let x = radius;
+    let y = 0;
+    let err = 0;
 
-      while (x >= y) {
-          drawPixel(x0 + x, y0 + y, color,size);
-          drawPixel(x0 + y, y0 + x, color,size);
-          drawPixel(x0 - y, y0 + x, color,size);
-          drawPixel(x0 - x, y0 + y, color,size);
-          drawPixel(x0 - x, y0 - y, color,size);
-          drawPixel(x0 - y, y0 - x, color,size);
-          drawPixel(x0 + y, y0 - x, color,size);
-          drawPixel(x0 + x, y0 - y, color,size);
+    // Actualizar traslacionX y traslacionY para el círculo
+    x0 += traslacionX;
+    y0 += traslacionY;
 
-          if (err <= 0) {
-              y += 1;
-              err += 2 * y + 1;
-          } else {
-              x -= 1;
-              err -= 2 * x + 1;
-          }
-      }
-  }
+    while (x >= y) {
+        drawPixel(x0 + x, y0 + y, color, size);
+        drawPixel(x0 + y, y0 + x, color, size);
+        drawPixel(x0 - y, y0 + x, color, size);
+        drawPixel(x0 - x, y0 + y, color, size);
+        drawPixel(x0 - x, y0 - y, color, size);
+        drawPixel(x0 - y, y0 - x, color, size);
+        drawPixel(x0 + y, y0 - x, color, size);
+        drawPixel(x0 + x, y0 - y, color, size);
+
+        if (err <= 0) {
+            y += 1;
+            err += 2 * y + 1;
+        } else {
+            x -= 1;
+            err -= 2 * x + 1;
+        }
+    }
+}
+
 
   function dibujarFiguras(figurasDibujadas) {
     cantidadFiguras = figurasDibujadas.length;
@@ -890,17 +1158,17 @@ function dibujarRectangulo(centerX, centerY, width, height, color, size, anguloR
             case 'rectangulo':
                 dibujarRectangulo(figura.startX, figura.startY, figura.width, figura.height,figura.color,figura.size,figura.anguloRotacion);
                 break;
-            case 'circulo':
-                dibujarCirculo(figura.centerX, figura.centerY, figura.radius,figura.color,figura.size);
+            case 'circulo':                
+                dibujarCirculo(figura.centerX, figura.centerY, figura.radius,figura.color,figura.size,figura.traslacionX,figura.traslacionY, figura.startX, figura.startY, figura.endX, figura.endY);
                 break;
             case 'linea':
-                dibujarLineaDDARotar(figura.startX, figura.startY, figura.endX, figura.endY,figura.color,figura.size,figura.anguloRotacion);
+                dibujarLineaDDARotar(figura.startX, figura.startY, figura.endX, figura.endY,figura.color,figura.size,figura.anguloRotacion,figura.traslacionX,figura.traslacionY);
                 break;
             case 'elipse':
-                dibujarElipse(figura.centerX, figura.centerY, figura.radiusX, figura.radiusY,figura.color,figura.size,figura.anguloRotacion);
+                dibujarElipse(figura.centerX, figura.centerY, figura.radiusX, figura.radiusY,figura.color,figura.size,figura.anguloRotacion,figura.traslacionX,figura.traslacionY);
                 break;
             case 'poligono':
-                dibujarPoligono2(figura.radio, figura.startX, figura.startY, figura.lado_d, figura.angulo,figura.color,figura.size,figura.anguloRotacion);
+                dibujarPoligono2(figura.radio, figura.startX, figura.startY, figura.lado_d, figura.angulo,figura.color,figura.size,figura.anguloRotacion,figura.traslacionX,figura.traslacionY);
                 break;
             case 'cuadrado':
                 dibujarCuadrado(figura.startX, figura.startY, figura.lado,figura.color,figura.size,figura.anguloRotacion);
@@ -910,10 +1178,10 @@ function dibujarRectangulo(centerX, centerY, width, height, color, size, anguloR
                 break;
             case 'rombo':
                 
-                dibujarRombo(figura.centerX, figura.centerY, figura.width, figura.height, figura.color, figura.size,figura.anguloRotacion);
+                dibujarRombo(figura.centerX, figura.centerY, figura.width, figura.height, figura.color, figura.size,figura.anguloRotacion,figura.traslacionX,figura.traslacionY);
                 break;
             case 'trapecio':
-                dibujarTrapecio(figura.startX, figura.startY, figura.endX, figura.endY,figura.color,figura.size,figura.anguloRotacion);
+                dibujarTrapecio(figura.startX, figura.startY, figura.endX, figura.endY,figura.color,figura.size,figura.anguloRotacion,figura.traslacionX,figura.traslacionY);
                 break;
             
         }
@@ -947,7 +1215,9 @@ function dibujarCuadrado(centerX, centerY, sideLength, color, size, anguloRotaci
 
 
 function drawPixel(x, y, color, size) {
-    
+    x = Math.round(x);
+    y = Math.round(y);
+
     // Verificar si el píxel ya está ocupado por una figura dibujada previamente
     const pixelData = contexto.getImageData(x, y, 1, 1).data;
     if (pixelData[3] !== 0) { // Si la opacidad es diferente de cero, significa que ya hay una figura dibujada en este píxel
