@@ -13,7 +13,7 @@
 
   width: 1.7%;
   margin-right: 5%; /* Establecer el margen izquierdo a 0 */
-  margin-top: 5%;
+  margin-top: 8%;
   
   height: 10%;
 }
@@ -142,25 +142,28 @@ margin-right: 1%;
   height: 15%;
   margin-left: -600%;
   margin-bottom: 20%;
-
+  border-style: solid;
 }
 #traeradelanteBtn{
   width: 700%;
   height: 15%;
-  margin-left: -500%;
+  margin-left: -600%;
   margin-bottom: 40%;
+  border-style: solid;
 }
 #traerfrenteBtn{
   width: 700%;
   height: 15%;
-  margin-left: -500%;
+  margin-left: -600%;
   margin-bottom: 20%;
+  border-style: solid;
 }
 #fondoBtn{
   width: 700%;
   height: 15%;
   margin-left: -600%;
   margin-bottom: 20%;
+  border-style: solid;
 }
 
 #borraBtn{

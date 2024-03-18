@@ -22,7 +22,7 @@ var traslacionY=0;
 let resizing = false;
 // Variables para almacenar la posición inicial del arrastre y el tamaño original del cuadrado
 let resizeStartX, resizeStartY, originalWidth, originalHeight;
-
+color=[0, 0, 0];
 document.getElementById('resizeBtn').addEventListener('click', function() {
     rotar=false;
     resizing=true;
@@ -64,6 +64,9 @@ document.getElementById('rotarBtn').addEventListener('click', function() {
     
 });
 document.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        resizing = false;
+    }
     console.log(trasladar);
     // Verificar si una figura está seleccionada y si la tecla presionada es para rotar
     if (figuraSeleccionada && (event.key === 'ArrowLeft' || event.key === 'ArrowRight') && rotar) {
@@ -85,7 +88,7 @@ document.addEventListener('keydown', function(event) {
     }
     //TRASLADAR
   
-    if (figuraSeleccionada.tipo=='rombo' && trasladar) {
+    if (figuraSeleccionada.tipo==='rombo' && trasladar) {
         // Si la tecla presionada es la flecha izquierda
         if (event.key === 'ArrowLeft') {
             figuraSeleccionada.centerX -= 5;
@@ -356,6 +359,7 @@ function seleccionarFigura(x, y) {
             case 'poligono':
                 if (puntoDentroDePoligono(x, y, figura.radio, figura.startX, figura.startY, figura.lado_d, figura.angulo,figura.anguloRotacion)) {
                         figuraSeleccionada = figura;
+                      
                         return;
                     }
                 break;   
@@ -835,6 +839,7 @@ document.getElementById('dibujarRectanguloBtn').addEventListener('click', functi
 });
 // agarrar las coordenadas del mouse cuqando hace clic
 canvas.addEventListener('mousedown', function(event) {
+    
         if(resizing && figuraSeleccionada){
             startX = event.offsetX; // x relativo al canvas
             startY = event.offsetY; 
@@ -843,7 +848,10 @@ canvas.addEventListener('mousedown', function(event) {
             return;
         }else{
             isDrawing = true;
-   
+         
+            // Reiniciar las coordenadas iniciales
+            startX = event.offsetX;
+            startY = event.offsetY;
             if(dibujandoCirculo || dibujandoLinea || dibujandoCuadrado || dibujandoElipse||dibujandoRectangulo||dibujandoTrapecio||dibujandoRombo){
                 startX = event.offsetX; // x relativo al canvas
                 startY = event.offsetY; // y relativo al canvas
@@ -877,6 +885,7 @@ canvas.addEventListener('mousedown', function(event) {
 canvas.addEventListener("mousemove", function(event) {
     console.log(figuraSeleccionada);
     console.log(resizing);
+   
     if(resizing && figuraSeleccionada){
         if(figuraSeleccionada.tipo==='circulo'){
          endX = event.clientX - canvas.getBoundingClientRect().left; // x
@@ -889,7 +898,143 @@ canvas.addEventListener("mousemove", function(event) {
          figuraSeleccionada.radius=newRadius;
          console.log(figuraSeleccionada.radius);
          dibujarFiguras(figurasDibujadas);
+        }else if (figuraSeleccionada.tipo === 'cuadrado') {
+            endX = event.clientX - canvas.getBoundingClientRect().left; // x
+            endY = event.clientY - canvas.getBoundingClientRect().top;   // y
+            
+            // Calcular el cambio en las dimensiones del cuadrado
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+            const newSideLength = Math.max(Math.abs(deltaX), Math.abs(deltaY)); // Tomar el máximo para mantener el cuadrado
+            figuraSeleccionada.lado = newSideLength;
+            
+            dibujarFiguras(figurasDibujadas);
+        }else if (figuraSeleccionada.tipo === 'linea') {
+            endX = event.clientX - canvas.getBoundingClientRect().left; // x
+            endY = event.clientY - canvas.getBoundingClientRect().top;   // y
+            
+            // Actualizar las coordenadas del punto final de la línea
+            figuraSeleccionada.endX = endX;
+            figuraSeleccionada.endY = endY;
+            
+            // Limpiar el lienzo
+            contexto.clearRect(0, 0, canvas.width, canvas.height);
+            // Redibujar todas las figuras con la nueva redimensión
+            dibujarFiguras(figurasDibujadas);
+        }else if (figuraSeleccionada.tipo === 'elipse') {
+            const rect = canvas.getBoundingClientRect();
+            endX = event.clientX - rect.left; // x
+            endY = event.clientY - rect.top;   // y
+            
+            // Calcular los nuevos radios de la elipse
+            const newRadiusX = Math.abs(endX - figuraSeleccionada.centerX);
+            const newRadiusY = Math.abs(endY - figuraSeleccionada.centerY);
+            
+            // Actualizar los radios de la elipse
+            figuraSeleccionada.radiusX = newRadiusX;
+            figuraSeleccionada.radiusY = newRadiusY;
+            
+            // Limpiar el lienzo
+            contexto.clearRect(0, 0, canvas.width, canvas.height);
+            // Redibujar todas las figuras con la nueva redimensión
+            dibujarFiguras(figurasDibujadas);
+        }else if (figuraSeleccionada.tipo === 'rombo') {
+            const rect = canvas.getBoundingClientRect();
+            endX = event.clientX - rect.left; // x
+            endY = event.clientY - rect.top;   // y
+            
+            // Calcular la nueva anchura y altura del rombo
+            const newWidth = Math.abs(endX - figuraSeleccionada.centerX) * 2;
+            const newHeight = Math.abs(endY - figuraSeleccionada.centerY) * 2;
+            
+            // Actualizar la anchura y altura del rombo
+            figuraSeleccionada.width = newWidth;
+            figuraSeleccionada.height = newHeight;
+            
+            // Limpiar el lienzo
+            contexto.clearRect(0, 0, canvas.width, canvas.height);
+            // Redibujar todas las figuras con la nueva redimensión
+            dibujarFiguras(figurasDibujadas);
+        }else if (figuraSeleccionada.tipo === 'trapecio') {
+            const rect = canvas.getBoundingClientRect();
+            const centerX = (figuraSeleccionada.startX + figuraSeleccionada.endX) / 2;
+            const centerY = (figuraSeleccionada.startY + figuraSeleccionada.endY) / 2;
+            
+            endX = event.clientX - rect.left; // x
+            endY = event.clientY - rect.top;   // y
+        
+            // Calcular el nuevo ancho del trapecio
+            const newWidth = Math.abs(endX - figuraSeleccionada.startX);
+            
+            // Calcular la nueva altura del trapecio
+            const newHeight = Math.abs(endY - figuraSeleccionada.startY);
+        
+            // Calcular las nuevas coordenadas de los vértices del trapecio
+            const deltaX = newWidth / 2;
+            const deltaY = newHeight / 2;
+        
+            // Actualizar las coordenadas de los vértices del trapecio
+            figuraSeleccionada.startX = centerX - deltaX;
+            figuraSeleccionada.endX = centerX + deltaX;
+            figuraSeleccionada.startY = centerY - deltaY;
+            figuraSeleccionada.endY = centerY + deltaY;
+        
+            // Limpiar el lienzo
+            contexto.clearRect(0, 0, canvas.width, canvas.height);
+            // Redibujar todas las figuras con la nueva redimensión
+            dibujarFiguras(figurasDibujadas);
+        }else if (figuraSeleccionada.tipo === 'rectangulo') {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+        
+            // Calcular la diferencia entre la posición actual del ratón y la posición inicial del ratón
+            const deltaX = mouseX - startX;
+            const deltaY = mouseY - startY;
+        
+            // Actualizar la posición del centro del rectángulo
+            figuraSeleccionada.centerX += deltaX / 2;
+            figuraSeleccionada.centerY += deltaY / 2;
+        
+            // Actualizar las dimensiones del rectángulo
+            figuraSeleccionada.width += deltaX;
+            figuraSeleccionada.height += deltaY;
+        
+            // Actualizar las coordenadas iniciales del ratón para el siguiente movimiento
+            startX = mouseX;
+            startY = mouseY;
+        
+            // Limpiar el lienzo
+            contexto.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Redibujar todas las figuras con la nueva redimensión
+            dibujarFiguras(figurasDibujadas);
+        }else if (figuraSeleccionada.tipo === 'poligono') {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+            
+            // Calcular el desplazamiento del ratón desde el punto inicial de redimensionamiento
+            const deltaX = mouseX - startX;
+            const deltaY = mouseY - startY;
+            
+            // Calcular el nuevo radio del polígono (distancia desde el centro hasta un vértice)
+            const newRadius = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+            
+            // Actualizar las coordenadas del centro del polígono
+            figuraSeleccionada.centerX += deltaX / 2;
+            figuraSeleccionada.centerY += deltaY / 2;
+            
+            // Actualizar el radio del polígono
+            figuraSeleccionada.radio = newRadius;
+            
+            // Limpiar el lienzo
+            contexto.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Redibujar todas las figuras con la nueva redimensión
+            dibujarFiguras(figurasDibujadas);
         }
+        
      }
     if (!isDrawing) return;
     endX = event.offsetX; // x relativo al canvas
@@ -911,8 +1056,50 @@ canvas.addEventListener("mousemove", function(event) {
         rotar=false;
     }
   
-
-   
+//PREVISUALIZAR
+        // Obtener las coordenadas actuales del ratón
+        const currentX = event.clientX - canvas.getBoundingClientRect().left;
+        const currentY = event.clientY - canvas.getBoundingClientRect().top;
+    
+        // Limpiar el lienzo antes de dibujar la previsualización
+        contexto.clearRect(0, 0, canvas.width, canvas.height);
+    
+        // Redibujar todas las figuras almacenadas en figurasDibujadas
+        dibujarFiguras(figurasDibujadas);
+    
+        // Dibujar la previsualización de la figura según el tipo seleccionado
+        if (dibujandoCirculo) {
+            const radius = Math.sqrt((currentX - startX) ** 2 + (currentY - startY) ** 2) / 2;
+            dibujarCirculo(startX, startY, radius, color, size, anguloRotacion, traslacionX, traslacionY);
+        }else if (dibujandoLinea) {
+            dibujarLineaDDARotar(startX, startY, currentX, currentY, color, size, anguloRotacion, traslacionX, traslacionY);
+        }else if (dibujandoCuadrado) {
+            const lado = Math.max(Math.abs(currentX - startX), Math.abs(currentY - startY));
+            dibujarCuadrado(startX, startY, lado, color, size, anguloRotacion, traslacionX, traslacionY);
+        }
+        else if (dibujandoElipse) {
+            const centerX = (startX + currentX) / 2;
+            const centerY = (startY + currentY) / 2;
+            const radiusX = Math.abs(currentX - startX) / 2;
+            const radiusY = Math.abs(currentY - startY) / 2;
+            dibujarElipse(centerX, centerY, radiusX, radiusY, color, size, anguloRotacion, traslacionX, traslacionY);
+        } else if (dibujandoPoligono) {
+            const angulo = Math.atan2(currentX - startX, currentY - startY);
+            const radio = Math.sqrt((currentX - startX) ** 2 + (currentY - startY) ** 2);
+            dibujarPoligono2(radio, startX, startY, lado_d, angulo, color, size, anguloRotacion, traslacionX, traslacionY);
+        } else if (dibujandoRectangulo) {
+            const width = currentX - startX;
+            const height = currentY - startY;
+            dibujarRectangulo(startX, startY, width, height, color, size, anguloRotacion, traslacionX, traslacionY);
+        } else if (dibujandoTrapecio) {
+            dibujarTrapecio(startX, startY, currentX, currentY, color, size, anguloRotacion, traslacionX, traslacionY);
+        } else if (dibujandoRombo) {
+            const centerX = (startX + currentX) / 2;
+            const centerY = (startY + currentY) / 2;
+            const width = Math.abs(currentX - startX);
+            const height = Math.abs(currentY - startY);
+            dibujarRombo(centerX, centerY, width, height, color, size, anguloRotacion, traslacionX, traslacionY);
+        }
 });
 
 // cordenadas al soltar el mouse
@@ -931,28 +1118,29 @@ canvas.addEventListener('mouseup', function(event) {
   //  const newRadius = Math.sqrt(deltaX ** 2 + deltaY ** 2) / 2;
    
     if(dibujandoCirculo){
-        // Calcular el centro del círculo con traslación
-        const centerX = (startX + endX) / 2 + traslacionX;
-        const centerY = (startY + endY) / 2 + traslacionY;
-            
-        // Calcular el radio del círculo
-        const radius = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2) / 2;
-            
-        // Dibujar el círculo con traslación
-        dibujarCirculo(centerX, centerY, radius, color, size, traslacionX, traslacionY);
-        console.log("aiudaaaaaaaaaaaaaa");
-        // Agregar información del círculo al vector de figuras dibujadas
-        let circulo = {
-            tipo: 'circulo',
-            centerX: centerX,
-            centerY: centerY,
-            radius: radius,
-            color: color,
-            size: size,
-            traslacionX: traslacionX,
-            traslacionY: traslacionY
-        };
-        figurasDibujadas.push(circulo);
+       // Calcular el centro del círculo
+       const centerX = (startX + endX) / 2;
+       const centerY = (startY + endY) / 2;
+       
+       // Calcular el radio del círculo
+       const radius = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2) / 2;
+       
+       // Dibujar el círculo con los nuevos cálculos
+   //    dibujarCirculo(centerX, centerY, radius, color, size, anguloRotacion, traslacionX, traslacionY);
+       
+       // Agregar información del círculo al vector de figuras dibujadas
+       let circulo = {
+           tipo: 'circulo',
+           centerX: centerX,
+           centerY: centerY,
+           radius: radius,
+           color: color,
+           size: size,
+           anguloRotacion: anguloRotacion,
+           traslacionX: traslacionX,
+           traslacionY: traslacionY
+       };
+       figurasDibujadas.push(circulo);
      
     }else if(dibujandoLinea){
         dibujarLineaDDARotar(startX,startY,endX,endY,color,size,anguloRotacion,traslacionX,traslacionY);
@@ -972,7 +1160,7 @@ canvas.addEventListener('mouseup', function(event) {
       //  dibujarFiguras(figurasDibujadas);
     }else if(dibujandoCuadrado){
         lado = Math.sqrt(((endX - startX) ** 2) + ((endY - startY) ** 2));
-        dibujarCuadrado(startX, startY, lado, color,size,anguloRotacion);
+       // dibujarCuadrado(startX, startY, lado, color,size,anguloRotacion);
         let cuadrado = {
             tipo: 'cuadrado',
             startX: startX,
@@ -1456,7 +1644,7 @@ function dibujarRectangulo(centerX, centerY, width, height, color, size, anguloR
     dibujarLineaDDA(rotatedX3Y3.x, rotatedX3Y3.y, rotatedX0Y0.x, rotatedX0Y0.y, color, size);
 }
 
-function dibujarCirculo(x0, y0, radius, color, size, traslacionX = 0, traslacionY = 0) {
+function dibujarCirculo(x0, y0, radius, color, size, traslacionX, traslacionY) {
     let x = radius;
     let y = 0;
     let err = 0;
