@@ -208,6 +208,39 @@ document.addEventListener('keydown', function(event) {
             }
         }
     }
+    //TEXTO
+    if (figuraSeleccionada && trasladar && figuraSeleccionada.tipo === 'texto') {
+        // Variables de traslación
+        let offsetX = 0;
+        let offsetY = 0;
+
+        // Determinar el desplazamiento basado en la tecla presionada
+        switch (event.key) {
+            case 'ArrowLeft':
+                offsetX = -5; // Mover a la izquierda
+                break;
+            case 'ArrowRight':
+                offsetX = 5; // Mover a la derecha
+                break;
+            case 'ArrowUp':
+                offsetY = -5; // Mover hacia arriba
+                break;
+            case 'ArrowDown':
+                offsetY = 5; // Mover hacia abajo
+                break;
+            default:
+                return; // Si no es una tecla de flecha, no hacer nada
+        }
+
+        // Actualizar las coordenadas del texto seleccionado
+        figuraSeleccionada.x += offsetX;
+        figuraSeleccionada.y += offsetY;
+
+        // Limpiar el lienzo
+        contexto.clearRect(0, 0, canvas.width, canvas.height);
+        // Redibujar todas las figuras con la nueva traslación
+        dibujarFiguras(figurasDibujadas);
+    }
 });
 
 canvas.addEventListener('click', function(event) {
@@ -249,14 +282,17 @@ canvas.addEventListener('click', function(event) {
         
         const texto = prompt('Ingresa el texto:');
         if (texto) {
-            dibujarTexto(texto, x, y, '20px Arial', 'black'); 
+            dibujarTexto(texto, x, y, '20px Arial', 'black',anguloRotacion,traslacionX,traslacionY); 
             let abc = {
                 tipo: 'texto',
                 texto:texto,
                 x:x,
                 y:y,
                 font: '20px Arial', 
-                fillStyle: 'black'
+                fillStyle: 'black',
+                anguloRotacion:anguloRotacion,
+                traslacionX:traslacionX,
+                traslacionY:traslacionY
             };
             figurasDibujadas.push(abc);
           
@@ -268,11 +304,25 @@ canvas.addEventListener('click', function(event) {
         seleccionarFigura(startX,startY);
     }
 });
-function dibujarTexto(texto, x, y, font, fillStyle) {
-    contexto.font = font; // Establecer la fuente del texto
-    contexto.fillStyle = fillStyle; // Establecer el color del texto
-    contexto.fillText(texto, x, y); // Dibujar el texto en la posición (x, y)
+function dibujarTexto(texto, x, y, font, fillStyle, anguloRotacion, traslacionX, traslacionY) {
+    // Guardar el estado actual del contexto
+    contexto.save();
+    
+    // Aplicar traslación y rotación al contexto
+    contexto.translate(x + traslacionX, y + traslacionY);
+    contexto.rotate(anguloRotacion);
+    
+    // Establecer la fuente y color del texto
+    contexto.font = font;
+    contexto.fillStyle = fillStyle;
+    
+    // Dibujar el texto en la posición (0, 0) relativa al contexto trasladado y rotado
+    contexto.fillText(texto, 0, 0);
+    
+    // Restaurar el estado del contexto
+    contexto.restore();
 }
+
 function seleccionarFigura(x, y) {
     // Iterar sobre las figuras dibujadas
     for (let i = figurasDibujadas.length - 1; i >= 0; i--) {
@@ -328,7 +378,14 @@ function seleccionarFigura(x, y) {
                                     return;
                                 }
                         break;  
-            
+                        case 'texto':
+                            // Verificar si el clic del usuario está dentro del área ocupada por el texto
+                            if (puntoDentroDeTexto(x, y, figura.x, figura.y, figura.texto, figura.font,figura.anguloRotacion,figura.traslacionX,figura.traslacionY)) {
+                                figuraSeleccionada = figura;
+                                return;
+                            }
+                            break;
+                        
         }
       
     }
@@ -336,6 +393,35 @@ function seleccionarFigura(x, y) {
     // Si no se seleccionó ninguna figura, establecer la figura seleccionada como null
     figuraSeleccionada = null;
 }
+function puntoDentroDeTexto(x, y, textoX, textoY, texto, font, anguloRotacion, traslacionX, traslacionY) {
+    // Obtener el contexto del lienzo temporalmente para medir el texto
+    const canvasTemp = document.createElement('canvas');
+    const contextTemp = canvasTemp.getContext('2d');
+    contextTemp.font = font;
+    const textoAncho = contextTemp.measureText(texto).width;
+    const textoAlto = parseInt(font, 10); // Suponiendo que el tamaño de fuente está definido como '20px Arial'
+
+    // Aplicar la traslación y rotación al punto (x, y)
+    const puntoTrasladadoX = x - traslacionX;
+    const puntoTrasladadoY = y - traslacionY;
+    const puntoRotadoX = (puntoTrasladadoX - textoX) * Math.cos(-anguloRotacion) - (puntoTrasladadoY - textoY) * Math.sin(-anguloRotacion) + textoX;
+    const puntoRotadoY = (puntoTrasladadoX - textoX) * Math.sin(-anguloRotacion) + (puntoTrasladadoY - textoY) * Math.cos(-anguloRotacion) + textoY;
+
+    // Calcular las coordenadas del área rectangular que rodea al texto trasladado y rotado
+    const areaRectangularX = textoX - (textoAncho / 2);
+    const areaRectangularY = textoY - (textoAlto / 2);
+    const areaRectangularAncho = textoAncho;
+    const areaRectangularAlto = textoAlto;
+
+    // Verificar si el punto (x, y) está dentro del área rectangular trasladada y rotada
+    if (puntoRotadoX >= areaRectangularX && puntoRotadoX <= (areaRectangularX + areaRectangularAncho) &&
+        puntoRotadoY >= areaRectangularY && puntoRotadoY <= (areaRectangularY + areaRectangularAlto)) {
+        return true;
+    }
+
+    return false;
+}
+
 document.getElementById('trasladarBtn').addEventListener('click', function() {
 
     trasladar=true;
@@ -1436,7 +1522,7 @@ function dibujarCirculo(x0, y0, radius, color, size, traslacionX = 0, traslacion
                 dibujarTrapecio(figura.startX, figura.startY, figura.endX, figura.endY,figura.color,figura.size,figura.anguloRotacion,figura.traslacionX,figura.traslacionY);
                 break;
             case 'texto':
-               dibujarTexto(figura.texto, figura.x, figura.y, figura.font, figura.fillStyle)
+               dibujarTexto(figura.texto, figura.x, figura.y, figura.font, figura.fillStyle,figura.anguloRotacion,figura.traslacionX,figura.traslacionY);
                 break;            
         }
     }
