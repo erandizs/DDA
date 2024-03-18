@@ -39,7 +39,8 @@ document.getElementById('resizeBtn').addEventListener('click', function() {
      dibujandoElipse=false;
      dibujandoPoligono=false;
      dibujandoRectangulo=false;
-     seleccionarFigura();
+    figuraSeleccionada=null;
+    // seleccionarFigura();
   
      
  });
@@ -210,12 +211,39 @@ document.addEventListener('keydown', function(event) {
 });
 
 canvas.addEventListener('click', function(event) {
-    if(resizing){
-        startX = event.offsetX; // x relativo al canvas
-        startY = event.offsetY;
-        seleccionarFigura(startX,startY);
-        console.log(figuraSeleccionada);
-    }else if(escribir){
+    if(botonMoverAtrasActivado){
+        const x = event.offsetX;
+        const y = event.offsetY;
+        // Llamar a la función seleccionarFigura con las coordenadas del clic
+        seleccionarFigura(x, y);
+      //  console.log(figuraSeleccionada);
+        moverHaciaAtras();
+    }else  if(botonMoverAdelanteActivado){
+        const x = event.offsetX;
+        const y = event.offsetY;
+        // Llamar a la función seleccionarFigura con las coordenadas del clic
+        seleccionarFigura(x, y);
+       // console.log(figuraSeleccionada);
+        moverHaciaAdelante();
+    }else  if(botonMoverAlFrenteActivado){
+        const x = event.offsetX;
+        const y = event.offsetY;
+        // Llamar a la función seleccionarFigura con las coordenadas del clic
+        seleccionarFigura(x, y);
+     //   console.log(figuraSeleccionada);
+        moverAlFrente();
+    }else  if(botonMoverAlFondoActivado){
+        const x = event.offsetX;
+        const y = event.offsetY;
+        // Llamar a la función seleccionarFigura con las coordenadas del clic
+        seleccionarFigura(x, y);
+      //  console.log(figuraSeleccionada);
+        moverAlFondo();
+    }
+    
+    
+    
+   if(escribir){
         const x = event.offsetX;
         const y = event.offsetY;
         
@@ -290,6 +318,7 @@ function seleccionarFigura(x, y) {
                     case 'trapecio':
                         if (puntoDentroDeTrapecio(x, y, figura.startX, figura.startY, figura.endX, figura.endY,figura.anguloRotacion)) {
                                 figuraSeleccionada = figura;
+                                console.log(figuraSeleccionada);
                                 return;
                             }
                         break;  
@@ -301,8 +330,9 @@ function seleccionarFigura(x, y) {
                         break;  
             
         }
+      
     }
-  
+ 
     // Si no se seleccionó ninguna figura, establecer la figura seleccionada como null
     figuraSeleccionada = null;
 }
@@ -613,7 +643,6 @@ document.getElementById('dibujarCirculoBtn').addEventListener('click', function(
     escribir=false;
     trasladar=false;
     rotar=false;
-    resizing=false;
     dibujandoTrapecio=false;
     dibujandoLinea = false; // no se dibuje una línea
     dibujandoCuadrado=false;
@@ -720,44 +749,66 @@ document.getElementById('dibujarRectanguloBtn').addEventListener('click', functi
 });
 // agarrar las coordenadas del mouse cuqando hace clic
 canvas.addEventListener('mousedown', function(event) {
- 
-        isDrawing = true;
-   
-        if(dibujandoCirculo || dibujandoLinea || dibujandoCuadrado || dibujandoElipse||dibujandoRectangulo||dibujandoTrapecio||dibujandoRombo){
+        if(resizing && figuraSeleccionada){
             startX = event.offsetX; // x relativo al canvas
-            startY = event.offsetY; // y relativo al canvas
-        }
-        if(dibujandoPoligono){
-            startX = event.clientX - canvas.getBoundingClientRect().left; // x
-            startY = event.clientY - canvas.getBoundingClientRect().top;  // y
-          
-           // ladosPoligono++;
-        }
-       
-        const mouseX = event.clientX - canvas.getBoundingClientRect().left;
-        const mouseY = event.clientY - canvas.getBoundingClientRect().top;
-    
-        // Si no hay ninguna figura seleccionada, intenta seleccionar una
-        if (!figuraSeleccionada) {
-           // seleccionarFigura(mouseX, mouseY);
-        } else {
-            // Si ya hay una figura seleccionada, limpia la selección
-            figuraSeleccionada = null;
-        }
-      
-    
+            startY = event.offsetY; 
+            seleccionarFigura(startX,startY);
+            console.log(figuraSeleccionada);
+            return;
+        }else{
+            isDrawing = true;
    
+            if(dibujandoCirculo || dibujandoLinea || dibujandoCuadrado || dibujandoElipse||dibujandoRectangulo||dibujandoTrapecio||dibujandoRombo){
+                startX = event.offsetX; // x relativo al canvas
+                startY = event.offsetY; // y relativo al canvas
+            }
+            if(dibujandoPoligono){
+                startX = event.clientX - canvas.getBoundingClientRect().left; // x
+                startY = event.clientY - canvas.getBoundingClientRect().top;  // y
+              
+               // ladosPoligono++;
+            }
+           
+            const mouseX = event.clientX - canvas.getBoundingClientRect().left;
+            const mouseY = event.clientY - canvas.getBoundingClientRect().top;
+        
+            // Si no hay ninguna figura seleccionada, intenta seleccionar una
+            if (!figuraSeleccionada) {
+               // seleccionarFigura(mouseX, mouseY);
+            } else {
+                // Si ya hay una figura seleccionada, limpia la selección
+                figuraSeleccionada = null;
+            }
+          
+        
+       
+        }
+     
    
     
 });
 
 canvas.addEventListener("mousemove", function(event) {
+    console.log(figuraSeleccionada);
+    console.log(resizing);
+    if(resizing && figuraSeleccionada){
+        if(figuraSeleccionada.tipo==='circulo'){
+         endX = event.clientX - canvas.getBoundingClientRect().left; // x
+         endY = event.clientY - canvas.getBoundingClientRect().top;   // y
+     
+         // Calcular el cambio en las dimensiones del círculo (en este caso, solo el radio)
+         const deltaX = endX - startX;
+         const deltaY = endY - startY;
+         const newRadius = Math.sqrt(deltaX ** 2 + deltaY ** 2) / 2;
+         figuraSeleccionada.radius=newRadius;
+         console.log(figuraSeleccionada.radius);
+         dibujarFiguras(figurasDibujadas);
+        }
+     }
     if (!isDrawing) return;
     endX = event.offsetX; // x relativo al canvas
     endY = event.offsetY; // y relativo al canvas
-    if(resizing){
-       
-    }
+  
     if(flag_borrador){
         const rect = canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
@@ -780,27 +831,19 @@ canvas.addEventListener("mousemove", function(event) {
 
 // cordenadas al soltar el mouse
 canvas.addEventListener('mouseup', function(event) {
+    if(resizing){
+      //  resizing=false;
+    }
+  
     if (!isDrawing) return;
     endX = event.clientX - canvas.getBoundingClientRect().left; // x
     endY = event.clientY - canvas.getBoundingClientRect().top;   // y
 
     // Calcular el cambio en las dimensiones del círculo (en este caso, solo el radio)
-    const deltaX = endX - startX;
-    const deltaY = endY - startY;
-    const newRadius = Math.sqrt(deltaX ** 2 + deltaY ** 2) / 2;
-
-    if (figuraSeleccionada && figuraSeleccionada.tipo === 'circulo' && resizing) {
-        // Actualizar el radio de la figura seleccionada con el nuevo radio calculado
-        figuraSeleccionada.radius = newRadius;
-
-        // Limpiar el lienzo
-        contexto.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Redibujar todas las figuras con las nuevas dimensiones
-        dibujarFiguras(figurasDibujadas);
-    }
-
-  
+  //  const deltaX = endX - startX;
+   // const deltaY = endY - startY;
+  //  const newRadius = Math.sqrt(deltaX ** 2 + deltaY ** 2) / 2;
+   
     if(dibujandoCirculo){
         // Calcular el centro del círculo con traslación
         const centerX = (startX + endX) / 2 + traslacionX;
@@ -1101,7 +1144,7 @@ function dibujarLineaDDARotar(x0, y0, x1, y1, color, size, anguloRotacion, trasl
         y += yIncrement;
     }
 }
-
+/*
 function dibujarCuadrado(centerX, centerY, sideLength, color, size, anguloRotacion, traslacionX, traslacionY) {
     const halfLength = sideLength / 2;
 
@@ -1134,8 +1177,174 @@ function dibujarCuadrado(centerX, centerY, sideLength, color, size, anguloRotaci
 
     // Llamar a la función para seleccionar la figura
     seleccionarFigura(centerX, centerY);
+}*/
+let botonMoverAlFondoActivado = false;
+
+// Variable para almacenar si el botón de mover al frente está activado
+let botonMoverAlFrenteActivado = false;
+// Variable para almacenar si el botón de mover hacia atrás está activado
+let botonMoverAtrasActivado = false;
+
+// Variable para almacenar si el botón de mover hacia adelante está activado
+let botonMoverAdelanteActivado = false;
+
+
+
+
+document.getElementById('enviaratrasBtn').addEventListener('click', function() {
+    botonMoverAtrasActivado =true;
+    botonMoverAdelanteActivado = false;
+    botonMoverAlFondoActivado = false;
+    botonMoverAlFrenteActivado = false;
+    console.log("mover atras");
+    rotar=false;
+    resizing=false;
+    trasladar=false;
+    escribir=false;
+    anguloRotacion = 0;
+    dibujandoRombo=false;
+    dibujandoTrapecio=false;
+    dibujarBtn=false;
+    flag_borrador=false;
+     dibujandoCirculo = false;
+     dibujandoLinea = false; // no se dibuje una línea
+     dibujandoCuadrado=false;
+     dibujandoElipse=false;
+     dibujandoPoligono=false;
+     dibujandoRectangulo=false;
+
+  
+});
+document.getElementById('traeradelanteBtn').addEventListener('click', function() {
+    botonMoverAdelanteActivado = true;
+    botonMoverAtrasActivado =false;
+    botonMoverAlFondoActivado = false;
+    botonMoverAlFrenteActivado = false;
+    rotar=false;
+    resizing=false;
+    trasladar=false;
+    escribir=false;
+    anguloRotacion = 0;
+    dibujandoRombo=false;
+    dibujandoTrapecio=false;
+    dibujarBtn=false;
+    flag_borrador=false;
+     dibujandoCirculo = false;
+     dibujandoLinea = false; // no se dibuje una línea
+     dibujandoCuadrado=false;
+     dibujandoElipse=false;
+     dibujandoPoligono=false;
+     dibujandoRectangulo=false;
+
+    moverHaciaAdelante();
+});
+document.getElementById('traerfrenteBtn').addEventListener('click', function() {
+    botonMoverAlFrenteActivado = true;
+    botonMoverAdelanteActivado = false;
+    botonMoverAtrasActivado =false;
+    botonMoverAlFondoActivado = false;
+    rotar=false;
+    resizing=false;
+    trasladar=false;
+    escribir=false;
+    anguloRotacion = 0;
+    dibujandoRombo=false;
+    dibujandoTrapecio=false;
+    dibujarBtn=false;
+    flag_borrador=false;
+     dibujandoCirculo = false;
+     dibujandoLinea = false; // no se dibuje una línea
+     dibujandoCuadrado=false;
+     dibujandoElipse=false;
+     dibujandoPoligono=false;
+     dibujandoRectangulo=false;
+   
+});
+document.getElementById('fondoBtn').addEventListener('click', function() {
+    botonMoverAlFondoActivado = true;
+    botonMoverAdelanteActivado = false;
+    botonMoverAtrasActivado =false;
+    botonMoverAlFrenteActivado = false;
+    rotar=false;
+    resizing=false;
+    trasladar=false;
+    escribir=false;
+    anguloRotacion = 0;
+    dibujandoRombo=false;
+    dibujandoTrapecio=false;
+    dibujarBtn=false;
+    flag_borrador=false;
+     dibujandoCirculo = false;
+     dibujandoLinea = false; // no se dibuje una línea
+     dibujandoCuadrado=false;
+     dibujandoElipse=false;
+     dibujandoPoligono=false;
+     dibujandoRectangulo=false;
+  
+     
+});
+
+
+function moverHaciaAtras() {
+    // Verificar si el botón de mover hacia atrás está activado
+    if (botonMoverAtrasActivado) {
+        console.log(figuraSeleccionada);
+        const index = figurasDibujadas.indexOf(figuraSeleccionada);
+        if (index > 0) {
+            // Intercambiar la posición de la figura seleccionada con la anterior
+            [figurasDibujadas[index], figurasDibujadas[index - 1]] = [figurasDibujadas[index - 1], figurasDibujadas[index]];
+            // Redibujar todas las figuras en el nuevo orden
+            dibujarFiguras(figurasDibujadas);
+        }
+    }
 }
 
+// Mover una figura hacia adelante
+function moverHaciaAdelante() {
+    if (figuraSeleccionada && botonMoverAdelanteActivado) {
+        const index = figurasDibujadas.indexOf(figuraSeleccionada);
+        if (index < figurasDibujadas.length - 1) {
+            // Guardar la figura que está adelante de la figura seleccionada
+            const figuraSiguiente = figurasDibujadas[index + 1];
+            // Colocar la figura siguiente en la posición actual de la figura seleccionada
+            figurasDibujadas[index + 1] = figuraSeleccionada;
+            // Colocar la figura seleccionada en la posición siguiente
+            figurasDibujadas[index] = figuraSiguiente;
+            // Redibujar todas las figuras en el nuevo orden
+            dibujarFiguras(figurasDibujadas);
+        }
+    }
+   
+}
+function moverAlFondo() {
+    if (figuraSeleccionada && botonMoverAlFondoActivado) {
+        const index = figurasDibujadas.indexOf(figuraSeleccionada);
+        if (index > 0) {
+            // Eliminar la figura seleccionada de su posición actual
+            figurasDibujadas.splice(index, 1);
+            // Insertar la figura al inicio de la lista
+            figurasDibujadas.unshift(figuraSeleccionada);
+            // Redibujar todas las figuras en el nuevo orden
+            dibujarFiguras(figurasDibujadas);
+        }
+    }
+}
+
+
+// Mover una figura al frente
+function moverAlFrente() {
+    if (figuraSeleccionada && botonMoverAlFrenteActivado) {
+        const index = figurasDibujadas.indexOf(figuraSeleccionada);
+        if (index < figurasDibujadas.length - 1) {
+            // Eliminar la figura seleccionada de su posición actual
+            figurasDibujadas.splice(index, 1);
+            // Insertar la figura al final de la lista
+            figurasDibujadas.push(figuraSeleccionada);
+            // Redibujar todas las figuras en el nuevo orden
+            dibujarFiguras(figurasDibujadas);
+        }
+    }
+}
 
 function dibujarRectangulo(centerX, centerY, width, height, color, size, anguloRotacion) {
     // Calcular las coordenadas de los vértices del rectángulo sin rotación
@@ -1266,9 +1475,9 @@ function drawPixel(x, y, color, size) {
 
     // Verificar si el píxel ya está ocupado por una figura dibujada previamente
     const pixelData = contexto.getImageData(x, y, 1, 1).data;
-    if (pixelData[3] !== 0) { // Si la opacidad es diferente de cero, significa que ya hay una figura dibujada en este píxel
+ /*   if (pixelData[3] !== 0) { // Si la opacidad es diferente de cero, significa que ya hay una figura dibujada en este píxel
         return; // No cambie el color del píxel
-    }
+    }*/
 
     // Dibujar el píxel con el tamaño especificado
     for (let i = x - size / 2; i < x + size / 2; i++) {
