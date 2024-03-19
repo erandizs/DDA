@@ -64,7 +64,7 @@ document.getElementById('rotarBtn').addEventListener('click', function() {
     
 });
 document.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
+   if (event.key === 'Enter') {
         resizing = false;
     }
     console.log(trasladar);
@@ -247,65 +247,69 @@ document.addEventListener('keydown', function(event) {
 });
 
 canvas.addEventListener('click', function(event) {
-    if(botonMoverAtrasActivado){
-        const x = event.offsetX;
-        const y = event.offsetY;
-        // Llamar a la función seleccionarFigura con las coordenadas del clic
-        seleccionarFigura(x, y);
-      //  console.log(figuraSeleccionada);
-        moverHaciaAtras();
-    }else  if(botonMoverAdelanteActivado){
-        const x = event.offsetX;
-        const y = event.offsetY;
-        // Llamar a la función seleccionarFigura con las coordenadas del clic
-        seleccionarFigura(x, y);
-       // console.log(figuraSeleccionada);
-        moverHaciaAdelante();
-    }else  if(botonMoverAlFrenteActivado){
-        const x = event.offsetX;
-        const y = event.offsetY;
-        // Llamar a la función seleccionarFigura con las coordenadas del clic
-        seleccionarFigura(x, y);
-     //   console.log(figuraSeleccionada);
-        moverAlFrente();
-    }else  if(botonMoverAlFondoActivado){
-        const x = event.offsetX;
-        const y = event.offsetY;
-        // Llamar a la función seleccionarFigura con las coordenadas del clic
-        seleccionarFigura(x, y);
-      //  console.log(figuraSeleccionada);
-        moverAlFondo();
-    }
-    
-    
-    
-   if(escribir){
-        const x = event.offsetX;
-        const y = event.offsetY;
-        
-        const texto = prompt('Ingresa el texto:');
-        if (texto) {
-            dibujarTexto(texto, x, y, '20px Arial', 'black',anguloRotacion,traslacionX,traslacionY); 
-            let abc = {
-                tipo: 'texto',
-                texto:texto,
-                x:x,
-                y:y,
-                font: '20px Arial', 
-                fillStyle: 'black',
-                anguloRotacion:anguloRotacion,
-                traslacionX:traslacionX,
-                traslacionY:traslacionY
-            };
-            figurasDibujadas.push(abc);
-          
+   
+
+        if(botonMoverAtrasActivado){
+            const x = event.offsetX;
+            const y = event.offsetY;
+            // Llamar a la función seleccionarFigura con las coordenadas del clic
+            seleccionarFigura(x, y);
+          //  console.log(figuraSeleccionada);
+            moverHaciaAtras();
+        }else  if(botonMoverAdelanteActivado){
+            const x = event.offsetX;
+            const y = event.offsetY;
+            // Llamar a la función seleccionarFigura con las coordenadas del clic
+            seleccionarFigura(x, y);
+           // console.log(figuraSeleccionada);
+            moverHaciaAdelante();
+        }else  if(botonMoverAlFrenteActivado){
+            const x = event.offsetX;
+            const y = event.offsetY;
+            // Llamar a la función seleccionarFigura con las coordenadas del clic
+            seleccionarFigura(x, y);
+         //   console.log(figuraSeleccionada);
+            moverAlFrente();
+        }else  if(botonMoverAlFondoActivado){
+            const x = event.offsetX;
+            const y = event.offsetY;
+            // Llamar a la función seleccionarFigura con las coordenadas del clic
+            seleccionarFigura(x, y);
+          //  console.log(figuraSeleccionada);
+            moverAlFondo();
         }
-    }else{
-        const rect = canvas.getBoundingClientRect();
-        let startX = event.clientX - rect.left;
-        let startY = event.clientY - rect.top;
-        seleccionarFigura(startX,startY);
-    }
+        
+        
+        
+       if(escribir){
+            const x = event.offsetX;
+            const y = event.offsetY;
+            
+            const texto = prompt('Ingresa el texto:');
+            if (texto) {
+                dibujarTexto(texto, x, y, '20px Arial', 'black',anguloRotacion,traslacionX,traslacionY); 
+                let abc = {
+                    tipo: 'texto',
+                    texto:texto,
+                    x:x,
+                    y:y,
+                    font: '20px Arial', 
+                    fillStyle: 'black',
+                    anguloRotacion:anguloRotacion,
+                    traslacionX:traslacionX,
+                    traslacionY:traslacionY
+                };
+                figurasDibujadas.push(abc);
+              
+            }
+        }else{
+            const rect = canvas.getBoundingClientRect();
+            let startX = event.clientX - rect.left;
+            let startY = event.clientY - rect.top;
+            seleccionarFigura(startX,startY);
+        }
+        
+    
 });
 function dibujarTexto(texto, x, y, font, fillStyle, anguloRotacion, traslacionX, traslacionY) {
     // Guardar el estado actual del contexto
@@ -839,7 +843,7 @@ document.getElementById('dibujarRectanguloBtn').addEventListener('click', functi
 });
 // agarrar las coordenadas del mouse cuqando hace clic
 canvas.addEventListener('mousedown', function(event) {
-    
+       
         if(resizing && figuraSeleccionada){
             startX = event.offsetX; // x relativo al canvas
             startY = event.offsetY; 
@@ -882,10 +886,44 @@ canvas.addEventListener('mousedown', function(event) {
     
 });
 
+function drawPixel2(x, y, rgbColor, size) {
+    // Convertir el color RGB en una cadena de formato "rgb(255, 0, 0)"
+    const color = `rgb(${rgbColor[0]}, ${rgbColor[1]}, ${rgbColor[2]})`;
+    
+    contexto.fillStyle = color;
+    if (dibujarBtn) {
+        const figura = {
+            tipo: 'pixel',
+            x: x,
+            y: y,
+            color: rgbColor.slice(), // Clonar el array de color para evitar cambios no deseados
+            size: size
+        };
+        figurasDibujadas.push(figura);
+    }
+    contexto.fillRect(x, y, size, size);
+}
+
 canvas.addEventListener("mousemove", function(event) {
     console.log(figuraSeleccionada);
     console.log(resizing);
-   
+   /* if(dibujarBtn){
+        drawPixel(endX,endY, color,size); 
+        anguloRotacion = 0;
+        rotar=false;
+    }*/
+    if(dibujarBtn){
+         // Obtener las coordenadas actuales del ratón
+        const x = event.offsetX;
+        const y = event.offsetY;
+
+        // Dibujar el píxel
+        drawPixel2(x, y, color, size);
+
+        // Actualizar las coordenadas del último píxel dibujado
+        [lastX, lastY] = [x, y];
+    }
+  
     if(resizing && figuraSeleccionada){
         if(figuraSeleccionada.tipo==='circulo'){
          endX = event.clientX - canvas.getBoundingClientRect().left; // x
@@ -1047,15 +1085,11 @@ canvas.addEventListener("mousemove", function(event) {
     
         // Borrar el píxel en las coordenadas actuales
         contexto.clearRect(x, y, size, size);
+        console.log("borrando");
     }
-   
-    if(dibujarBtn){
     
-        drawPixel(endX,endY, color,size); 
-        anguloRotacion = 0;
-        rotar=false;
-    }
-  
+   
+
 //PREVISUALIZAR
         // Obtener las coordenadas actuales del ratón
         const currentX = event.clientX - canvas.getBoundingClientRect().left;
@@ -1104,8 +1138,8 @@ canvas.addEventListener("mousemove", function(event) {
 
 // cordenadas al soltar el mouse
 canvas.addEventListener('mouseup', function(event) {
-    if(resizing){
-      //  resizing=false;
+    if(dibujarBtn){
+        dibujarBtn = false;
     }
   
     if (!isDrawing) return;
@@ -1700,7 +1734,7 @@ function dibujarCirculo(x0, y0, radius, color, size, traslacionX, traslacionY) {
                 dibujarCuadrado(figura.startX, figura.startY, figura.lado,figura.color,figura.size,figura.anguloRotacion);
                 break;
             case 'pixel':
-                drawPixel(figura.x,figura.y,figura.color,figura.size,figura.anguloRotacion);
+                drawPixel2(figura.x,figura.y,figura.color,figura.size);
                 break;
             case 'rombo':
                 
